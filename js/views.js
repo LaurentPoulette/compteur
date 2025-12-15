@@ -50,7 +50,9 @@ export const PlayerSelectView = (store, gameId) => {
         return `
                 <div class="card player-card ${isSelected ? 'selected' : ''}" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.togglePlayer('${p.id}')" style="cursor:pointer; position:relative;">
                     <div onclick="event.stopPropagation(); window.app.editPlayer('${p.id}')" style="position:absolute; top:5px; right:5px; padding:5px; font-size:1.2rem; line-height:1;">✏️</div>
-                    <span style="font-size:2em;">${p.avatar}</span>
+                    <div style="height:50px; display:flex; align-items:center; justify-content:center;">
+                        ${p.photo ? `<img src="${p.photo}" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:2em;">${p.avatar}</span>`}
+                    </div>
                     <h3>${p.name}</h3>
                 </div>
             `;
@@ -135,7 +137,11 @@ export const ActiveGameView = (store) => {
             return `
                             <td class="leaderboard-cell">
                                  <div class="leaderboard-card ${themeClass}">
-                                    <span class="leaderboard-rank">${i + 1} ${p.avatar} ${p.score}</span>
+                                    <span class="leaderboard-rank">
+                                        ${i + 1} 
+                                        ${p.photo ? `<img src="${p.photo}" style="width:20px; height:20px; border-radius:50%; object-fit:cover; vertical-align:middle;">` : p.avatar} 
+                                        ${p.score}
+                                    </span>
                                     <br>
                                     <span class="name-full">${p.name}</span>
                                     <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
@@ -172,6 +178,7 @@ export const ActiveGameView = (store) => {
             <div class="menu-content">
                 <button class="menu-item" onclick="window.app.navigateAddPlayerInGame()">Ajouter un joueur</button>
                 <button class="menu-item" onclick="window.app.navigateRemovePlayerInGame()">Supprimer un joueur</button>
+                <button class="menu-item" onclick="window.app.navigateReorderPlayers()">Changer l'ordre des joueurs</button>
                 <button class="menu-item" onclick="window.app.navigateUpdateLimits()">Modifier les limites</button>
                 <div style="height:1px; background:#eee; margin:5px 0;"></div>
                 <button class="menu-item" onclick="window.app.navigateEndGame()">Terminer la partie</button>
@@ -187,7 +194,9 @@ export const ActiveGameView = (store) => {
                             <th class="history-header">#</th>
                             ${tablePlayers.map(p => `
                                 <th class="history-header">
-                                    <div style="font-size:1.5em;">${p.avatar}</div>
+                                    <div style="height:35px; display:flex; align-items:center; justify-content:center;">
+                                        ${p.photo ? `<img src="${p.photo}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:1.5em;">${p.avatar}</span>`}
+                                    </div>
                                     <div style="font-size:0.8em;">
                                         <span class="name-full">${p.name}</span>
                                         <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
@@ -426,10 +435,31 @@ export const CreatePlayerView = () => `
 
         <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:20px;">
             ${['👤', '🧑‍🚀', '🦸', '🦹', '🧙', '🧟', '🧛', '🧞', '🧜', '🧚'].map(emoji => `
-                <div onclick="document.querySelectorAll('.avatar-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('new-player-avatar').value='${emoji}'" class="avatar-opt" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
+                <div onclick="document.querySelectorAll('.avatar-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('new-player-avatar').value='${emoji}'; const p = document.getElementById('new-player-photo-preview'); p.src=''; p.style.display='none';" class="avatar-opt" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
             `).join('')}
         </div>
         <input type="hidden" id="new-player-avatar" value="👤">
+
+        <div style="margin-bottom:20px; text-align:center;">
+             <div style="margin-bottom:5px; font-weight:bold;">Ou une photo</div>
+             
+             <!-- Camera Actions -->
+             <div id="new-player-photo-actions" style="margin-bottom:10px;">
+                 <button onclick="window.app.startCamera('new-player')" style="background:var(--primary-color); color:white; padding:8px 12px; border-radius:5px; border:none; margin-right:5px;">📷 Appareil Photo</button>
+                 <button onclick="document.getElementById('new-player-photo').click()" style="background:#eee; color:#333; padding:8px 12px; border-radius:5px; border:1px solid #ccc;">📁 Fichier</button>
+             </div>
+
+             <!-- Camera View -->
+             <div id="new-player-camera-container" style="display:none; margin-bottom:10px;">
+                 <video id="new-player-camera-video" autoplay playsinline style="width:100%; max-width:250px; background:#000; border-radius:8px; margin-bottom:5px;"></video>
+                 <br>
+                 <button onclick="window.app.capturePhoto('new-player')" style="background:var(--primary-color); color:white; padding:10px 20px; border-radius:20px; border:none; font-weight:bold;">📸 Prendre Photo</button>
+                 <button onclick="window.app.stopCamera('new-player')" style="background:#eee; color:#333; padding:10px; border-radius:5px; margin-left:10px;">Annuler</button>
+             </div>
+
+             <input type="file" id="new-player-photo" accept="image/*" onchange="window.app.handleImageUpload(this)" style="display:none;">
+             <img id="new-player-photo-preview" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:none; margin: 0 auto; border:3px solid var(--primary-color); margin-top:10px;">
+        </div>
 
         <button onclick="window.app.submitCreatePlayer()" style="width:100%">Ajouter</button>
     </div>
@@ -456,10 +486,32 @@ export const EditPlayerView = (store, playerId) => {
 
         <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:20px;">
             ${['👤', '🧑‍🚀', '🦸', '🦹', '🧙', '🧟', '🧛', '🧞', '🧜', '🧚'].map(emoji => `
-                <div onclick="document.querySelectorAll('.avatar-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('edit-player-avatar').value='${emoji}'" class="avatar-opt ${player.avatar === emoji ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
+                <div onclick="document.querySelectorAll('.avatar-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('edit-player-avatar').value='${emoji}'; const p = document.getElementById('edit-player-photo-preview'); p.src=''; p.style.display='none';" class="avatar-opt ${player.avatar === emoji ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
             `).join('')}
         </div>
         <input type="hidden" id="edit-player-avatar" value="${player.avatar}">
+
+        <div style="margin-bottom:20px; text-align:center;">
+             <div style="margin-bottom:5px; font-weight:bold;">Ou une photo</div>
+
+             <!-- Camera Actions -->
+             <div id="edit-player-photo-actions" style="margin-bottom:10px;">
+                 <button onclick="window.app.startCamera('edit-player')" style="background:var(--primary-color); color:white; padding:8px 12px; border-radius:5px; border:none; margin-right:5px;">📷 Appareil Photo</button>
+                 <button onclick="document.getElementById('edit-player-photo').click()" style="background:#eee; color:#333; padding:8px 12px; border-radius:5px; border:1px solid #ccc;">📁 Fichier</button>
+             </div>
+
+             <!-- Camera View -->
+             <div id="edit-player-camera-container" style="display:none; margin-bottom:10px;">
+                 <video id="edit-player-camera-video" autoplay playsinline style="width:100%; max-width:250px; background:#000; border-radius:8px; margin-bottom:5px;"></video>
+                 <br>
+                 <button onclick="window.app.capturePhoto('edit-player')" style="background:var(--primary-color); color:white; padding:10px 20px; border-radius:20px; border:none; font-weight:bold;">📸 Prendre Photo</button>
+                 <button onclick="window.app.stopCamera('edit-player')" style="background:#eee; color:#333; padding:10px; border-radius:5px; margin-left:10px;">Annuler</button>
+             </div>
+
+             <input type="file" id="edit-player-photo" accept="image/*" onchange="window.app.handleImageUpload(this)" style="display:none;">
+             <img id="edit-player-photo-preview" src="${player.photo || ''}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:${player.photo ? 'block' : 'none'}; margin: 0 auto; border:3px solid var(--primary-color); margin-top:10px;">
+             ${player.photo ? `<button onclick="document.getElementById('edit-player-photo-preview').src=''; document.getElementById('edit-player-photo-preview').style.display='none';" style="margin-top:5px; background:none; border:none; color:red; text-decoration:underline; font-size:0.8em; cursor:pointer;">Supprimer photo</button>` : ''}
+        </div>
 
         <button onclick="window.app.submitEditPlayer()" style="width:100%">Enregistrer</button>
     </div>
@@ -593,6 +645,49 @@ export const RemoveIngamePlayerView = (store) => {
             `).join('')}
         </div>
     </div>
+    <style>
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+    </style>
+    `;
+};
+
+export const ReorderIngamePlayersView = (store) => {
+    const session = store.restoreSession();
+    if (!session) return '<div>Partie introuvable</div>';
+
+    // We want to re-use the updateSelectedPlayersUI logic but strictly for this view.
+    // However, the existing logic is tied to "selectedPlayers" property of App.
+    // We can just initialize App.selectedPlayers with session players?
+    // Be careful not to mess up "New Game" selection.
+    // A safer way is to have a dedicated logic or state for this view in App.
+    // Or just make this view self-contained with its own script.
+
+    // Let's use window.app.ingameReorderList as temporary state?
+    // Or better: Let App handle it via a new method.
+
+    // We need to initialize the list
+    if (!window.app.reorderIngameState) {
+        window.app.reorderIngameState = session.players.map(p => p.id);
+    }
+
+    // The view will be static initially, then populated by updateReorderIngameUI()
+    // We can call updateReorderIngameUI() immediately after render (like we did for navigate).
+
+    return `
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+        <button onclick="window.app.cancelReorderIngame()" style="padding: 8px 12px; margin-right: 10px;">Annuler</button>
+        <h1>Ordre des joueurs</h1>
+        <button onclick="window.app.saveReorderIngame()" style="padding: 8px 12px; margin-left: auto; background:var(--primary-color); color:white; border:none;">Sauvegarder</button>
+    </header>
+    <div class="card">
+        <p style="margin-bottom:10px; color:#666; font-size:0.9em;">Glissez pour réorganiser.</p>
+        <div id="reorder-ingame-list"></div>
+    </div>
+    
+    <!-- Script to init UI -->
+    <script>
+        setTimeout(() => window.app.updateReorderIngameUI(), 50);
+    </script>
     `;
 };
 

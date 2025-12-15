@@ -44,18 +44,24 @@ export class Store {
     }
     getPlayers() { return this.state.players; }
 
-    addPlayer(name, avatar) {
+    addPlayer(name, avatar, photo = null) {
         const id = 'p_' + Date.now();
-        this.state.players.push({ id, name, avatar: avatar || '👤' });
+        this.state.players.push({ id, name, avatar: avatar || '👤', photo });
         this.save();
         return id;
     }
 
-    updatePlayer(id, name, avatar) {
+    updatePlayer(id, name, avatar, photo = null) {
         const player = this.state.players.find(p => p.id === id);
         if (player) {
             player.name = name;
             player.avatar = avatar;
+            if (photo !== null) player.photo = photo; // Only update if provided (undefined means keep existing, null means clear? No let's assume passed value is new value)
+            // Actually, if I pass undefined to update, I might want to keep it.
+            // But from app controller I will likely pass string or empty.
+            // Let's settle: if photo is passed (even empty string), update it.
+            // If the user didn't upload a new one, we might re-pass the old one or just pass null.
+            // Let's say: photo argument is the new photo data.
             this.save();
         }
     }
@@ -89,7 +95,7 @@ export class Store {
             config, // Store the game configuration (limits)
             players: playerIds.map(pid => ({ id: pid, score: 0, rounds: [] })),
             currentRound: 1,
-            history: [], // List of round details
+            history: [{}], // Start with one empty round
             startTime: Date.now()
         };
         this.save();
@@ -150,6 +156,24 @@ export class Store {
         // But let's Recalculate just in case
         this.recalculateTotals();
         this.save();
+    }
+    reorderSessionPlayers(newPlayerIdsStartOrder) {
+        if (!this.state.activeGame) return;
+
+        // Current players
+        const currentPlayers = this.state.activeGame.players;
+
+        // Reorder players array based on the list of IDs
+        // Note: newPlayerIdsStartOrder might contain all players. 
+        // We just map the IDs back to the player objects.
+
+        const newOrder = newPlayerIdsStartOrder.map(pid => currentPlayers.find(p => p.id === pid)).filter(p => p !== undefined);
+
+        // Safety check if something missing
+        if (newOrder.length === currentPlayers.length) {
+            this.state.activeGame.players = newOrder;
+            this.save();
+        }
     }
 
     removePlayerFromSession(playerId) {
