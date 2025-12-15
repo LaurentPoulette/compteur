@@ -707,14 +707,14 @@ class App {
                         <td style="min-width:140px; padding:5px; border-right:1px solid #eee;">
                              <div style="background-color:${bgColor}; border:1px solid ${borderColor}; border-radius:8px; padding:5px 8px; display:flex; align-items:center; gap:8px;">
                                 <span style="font-weight:bold; color:${borderColor}; opacity:0.8;">#${i + 1}</span>
-                                <div style="display:flex; align-items:center; justify-content:center; height:30px; width:30px;">
-                                    ${p.photo ? `<img src="${p.photo}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">` : `<div style="font-size:1.2em;">${p.avatar}</div>`}
+                                <div style="display:flex; align-items:center; justify-content:center; height:38px; width:38px;">
+                                    ${p.photo ? `<img src="${p.photo}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">` : `<div style="font-size:1.5em;">${p.avatar}</div>`}
                                 </div>
-                                <div style="font-weight:600; font-size:0.9em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">
+                                <div style="font-weight:600; font-size:1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">
                                     <span class="name-full">${p.name}</span>
                                     <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
                                 </div>
-                                <span style="font-weight:bold; font-size:1.1em;">${p.score}</span>
+                                <span style="font-weight:bold; font-size:1.25em;">${p.score}</span>
                             </div>
                         </td>
                  `}).join('')}
@@ -727,7 +727,42 @@ class App {
         if (container) container.innerHTML = html;
 
         // CHECK FOR GAME OVER CONDITIONS
-        this.checkGameEndCondition(session, game);
+        const reason = this.checkGameEndCondition(session, game);
+
+        // AUTO-ADD NEW ROUND LOGIC
+        // If NO game over and the LAST round is fully filled, add a new one automatically.
+        if (!reason) {
+            const currentRoundData = session.history[roundIndex];
+            // We only care if we just updated the *last* round
+            const isLastRound = parseInt(roundIndex) === session.history.length - 1;
+
+            if (isLastRound) {
+                const isRoundComplete = session.players.every(p => currentRoundData[p.id] !== undefined && currentRoundData[p.id] !== "");
+                if (isRoundComplete) {
+                    // Auto-add new round
+                    // Warning: if we just update innerHTML of the whole view, focus will be lost.
+                    // The requirement "when entering LAST score... create new round".
+                    // Ideally we want to just append the row to the table without full re-render, 
+                    // OR re-render but put focus on the first cell of the new row?
+
+                    // Adding a round updates store history.
+                    this.store.addEmptyRound();
+
+                    // Re-render view to show new round
+                    // To avoid jarring experience, maybe small delay? 
+                    // Or immediate.
+                    // IMPORTANT: We need to preserve focus or at least scrolling.
+                    // Full re-render kills focus. 
+
+                    // Let's re-render. User has finished typing. They might be looking for next box.
+                    const content = ActiveGameView(this.store);
+                    document.querySelector('.view:last-child').innerHTML = content;
+
+                    // Attempt to scroll to bottom or focus new row?
+                    // Let's rely on standard render.
+                }
+            }
+        }
     }
 
     checkGameEndCondition(session, game) {
@@ -809,6 +844,7 @@ class App {
                 newRoundBtn.style.display = 'block';
             }
         }
+        return reason;
     }
 
     navigateUpdateLimits() {

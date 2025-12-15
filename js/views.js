@@ -160,15 +160,15 @@ export const ActiveGameView = (store) => {
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; z-index:1001; position:relative; flex-shrink:0;">
 
             <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
-                <span style="font-size:1.5em; flex-shrink:0;">${game.icon || '🎲'}</span>
-                <h3 style="margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:1;">${session.title}</h3>
+                <span style="font-size:1.8em; flex-shrink:0;">${game.icon || '🎲'}</span>
+                <h3 style="margin:0; font-size:1.3rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:1;">${session.title}</h3>
                 
-                <div style="font-size:0.8em; color:#666; display:flex; align-items:center; gap:8px; white-space:nowrap; flex-shrink:0;">
+                <div style="font-size:0.9em; color:#666; display:flex; align-items:center; gap:8px; white-space:nowrap; flex-shrink:0;">
                     <span style="border-left:1px solid #ccc; padding-left:8px;">🏁 ${((session.config && session.config.rounds !== undefined) ? session.config.rounds : game.rounds) || '∞'}</span>
                     <span>🎯 ${((session.config && session.config.target !== undefined) ? session.config.target : game.target) || '∞'}</span>
                 </div>
             </div>
-            <button onclick="document.getElementById('game-menu').classList.toggle('active')" style="background:none; color:var(--text-color); padding:0; font-size:1.5rem; margin-left:10px;">&#9776;</button> 
+            <button onclick="document.getElementById('game-menu').classList.toggle('active')" style="background:none; color:var(--text-color); padding:0; font-size:1.8rem; margin-left:10px;">&#9776;</button> 
         </header>
 
         <div id="game-over-banner-top" style="display:none;"></div>
@@ -194,10 +194,10 @@ export const ActiveGameView = (store) => {
                             <th class="history-header">#</th>
                             ${tablePlayers.map(p => `
                                 <th class="history-header">
-                                    <div style="height:35px; display:flex; align-items:center; justify-content:center;">
-                                        ${p.photo ? `<img src="${p.photo}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:1.5em;">${p.avatar}</span>`}
+                                    <div style="height:42px; display:flex; align-items:center; justify-content:center;">
+                                        ${p.photo ? `<img src="${p.photo}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:1.8em;">${p.avatar}</span>`}
                                     </div>
-                                    <div style="font-size:0.8em;">
+                                    <div style="font-size:0.9em;">
                                         <span class="name-full">${p.name}</span>
                                         <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
                                     </div>

@@ -22,10 +22,15 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    font-size: 20px;
+}
+
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
+    font-size: 1rem;
     overflow: hidden;
     /* Prevent scrolling on body, handle in views */
     height: 100vh;
