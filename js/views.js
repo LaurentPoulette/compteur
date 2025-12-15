@@ -101,34 +101,28 @@ export const ActiveGameView = (store) => {
     const getLeaderboardHTML = () => {
         const sorted = [...players].sort((a, b) => isLowestWin ? a.score - b.score : b.score - a.score);
         return `
-            <table class="leaderboard-table" style="width:100%; font-size:0.9em;">
+            <table class="leaderboard-table">
                 <tbody>
                     <tr>
                  ${sorted.map((p, i) => {
-            let bgColor = '#e0f2fe'; // Default Blue-ish
-            let borderColor = '#3b82f6';
+            let themeClass = 'theme-default';
 
             if (i === 0) {
-                bgColor = '#dcfce7'; // Green-ish
-                borderColor = '#22c55e';
+                themeClass = 'theme-first';
             } else if (i === sorted.length - 1 && sorted.length > 1) {
-                bgColor = '#fee2e2'; // Red-ish
-                borderColor = '#ef4444';
+                themeClass = 'theme-last';
             }
 
             return `
-                        <td style="min-width:140px; padding:5px; border-right:1px solid #eee;">
-                             <div style="background-color:${bgColor}; border:1px solid ${borderColor}; border-radius:8px; padding:5px 8px; display:flex; align-items:center; gap:8px;">
-                                <span style="font-weight:bold; color:${borderColor}; opacity:0.8;">#${i + 1}</span>
-                                <div style="font-size:1.2em;">${p.avatar}</div>
-                                <div style="font-weight:600; font-size:0.9em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">
+                            <td class="leaderboard-cell">
+                                 <div class="leaderboard-card ${themeClass}">
+                                    <span class="leaderboard-rank">${i + 1} ${p.avatar} ${p.score}</span>
                                     <span class="name-full">${p.name}</span>
                                     <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
+                                    
                                 </div>
-                                <span style="font-weight:bold; font-size:1.1em;">${p.score}</span>
-                            </div>
-                        </td>
-                 `}).join('')}
+                            </td>
+                     `}).join('')}
                     </tr>
                 </tbody>
             </table>
@@ -169,9 +163,9 @@ export const ActiveGameView = (store) => {
                 <table class="history-table" style="text-align: center;">
                     <thead style="position: sticky; top: 0; background: var(--surface-color); z-index: 1;">
                         <tr>
-                            <th style="padding:10px;">#</th>
+                            <th class="history-header">#</th>
                             ${tablePlayers.map(p => `
-                                <th style="padding:10px;">
+                                <th class="history-header">
                                     <div style="font-size:1.5em;">${p.avatar}</div>
                                     <div style="font-size:0.8em;">
                                         <span class="name-full">${p.name}</span>
@@ -179,7 +173,7 @@ export const ActiveGameView = (store) => {
                                     </div>
                                 </th>
                             `).join('')}
-                            ${hasFixedScore ? '<th style="padding:10px; color:#666;">Check</th>' : ''}
+                            ${hasFixedScore ? '<th class="history-header-check">Check</th>' : ''}
                         </tr>
                     </thead>
                     <tbody>
@@ -193,18 +187,18 @@ export const ActiveGameView = (store) => {
 
         return `
                             <tr>
-                                <td style="padding:10px; border-bottom:1px solid #eee;">${roundIndex + 1}</td>
+                                <td class="history-cell-round">${roundIndex + 1}</td>
                                 ${tablePlayers.map(p => `
-                                    <td style="padding:5px; border-bottom:1px solid #eee;">
+                                    <td class="history-cell-score">
                                         <input type="number" 
+                                               class="score-input"
                                                value="${round[p.id] !== undefined ? round[p.id] : ''}" 
                                                onchange="window.app.updateRound('${roundIndex}', '${p.id}', this.value)"
                                                onfocus="this.select()"
-                                               placeholder="-"
-                                               style="width:60px; padding:5px; text-align:center; border:1px solid #ddd; border-radius:4px;">
+                                               placeholder="-">
                                     </td>
                                 `).join('')}
-                                ${hasFixedScore ? `<td id="check-cell-${roundIndex}" style="padding:5px; border-bottom:1px solid #eee; font-weight:bold; color:${checkValue === 0 ? 'var(--primary-color)' : '#ef4444'};">${checkValue === 0 ? 'OK' : checkValue}</td>` : ''}
+                                ${hasFixedScore ? `<td id="check-cell-${roundIndex}" class="history-cell-check ${checkValue === 0 ? 'text-primary' : 'text-danger'}">${checkValue === 0 ? 'OK' : checkValue}</td>` : ''}
                             </tr>
                         `}).join('')}
                     </tbody>
@@ -213,7 +207,7 @@ export const ActiveGameView = (store) => {
 
         </div>
 
-        <div id="sticky-leaderboard" style="position:fixed; bottom:0; left:0; width:100%; background:var(--surface-color); box-shadow:0 -4px 12px rgba(0,0,0,0.15); border-top-left-radius:16px; border-top-right-radius:16px; z-index:100;">
+        <div id="sticky-leaderboard">
             <div style="padding:10px 10px 0 10px;">
                 <div id="game-over-banner-bottom" style="display:${gameOverReason ? 'block' : 'none'};">
                         <div style="background-color:var(--primary-color); color:white; padding:15px; border-radius:8px; margin-bottom:10px; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -227,8 +221,8 @@ export const ActiveGameView = (store) => {
                 </div>
                 <button id="btn-new-round" onclick="window.app.addRound()" style="width:100%; padding: 12px; font-size: 1.1rem; margin-bottom:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display:${gameOverReason ? 'none' : 'block'};">+ Nouveau Tour</button>
             </div>
-            <h4 style="margin:0 0 5px 0; text-align:center; opacity:0.6; font-size:0.8em; text-transform:uppercase; letter-spacing:1px;">Classement</h4>
-            <div id="leaderboard-content" style="padding: 0 10px 10px 10px; overflow-x:auto;">
+            
+            <div id="leaderboard-content" class="sticky-leaderboard-content">
                 ${getLeaderboardHTML()}
             </div>
         </div>
@@ -643,33 +637,38 @@ export const GameOverView = (store) => {
     const winner = players[0];
 
     return `
-    <div style="text-align:center; padding: 20px;">
-        <div style="font-size:5em; margin-bottom:10px;">🏆</div>
-        <h1 style="color:var(--primary-color); margin-bottom:5px;">${winner.name} a gagné !</h1>
-        <p style="color:#666; margin-bottom:30px; font-size:1.2em;">Partie terminée</p>
+    <div class="gameover-container">
+        <div class="gameover-icon">🏆</div>
+        <h1 class="gameover-title">${winner.name} a gagné !</h1>
+        <p class="gameover-subtitle">Partie terminée</p>
 
         <div class="card">
-            <h3 style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">Classement Final</h3>
-            <table class="leaderboard-table" style="width:100%;">
+            <h3 class="gameover-section-title">Classement Final</h3>
+            <table class="leaderboard-table">
                  <tbody>
                     ${players.map((p, i) => {
         let rankIcon = `#${i + 1}`;
         let size = '1em';
 
         if (i === 0) { rankIcon = '🥇'; size = '1.5em'; }
-        if (i === 1) { rankIcon = '🥈'; size = '1.3em'; }
-        if (i === 2) { rankIcon = '🥉'; size = '1.2em'; }
+        if (i === 1) rankIcon = '🥈';
+        if (i === 2) rankIcon = '🥉';
+
+        let rankClass = 'rank-text-default';
+        if (i === 0) rankClass = 'rank-text-0';
+        else if (i === 1) rankClass = 'rank-text-1';
+        else if (i === 2) rankClass = 'rank-text-2';
 
         return `
                         <tr>
-                            <td style="padding:10px; border-bottom:1px solid #eee; width:40px; text-align:center; font-size:${size};">${rankIcon}</td>
-                            <td style="padding:10px; border-bottom:1px solid #eee; text-align:left;">
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <span style="font-size:1.5em; margin-right:10px;">${p.avatar}</span>
-                                    <span style="font-weight:bold;">${p.name}</span>
+                            <td class="gameover-rank-cell ${rankClass}">${rankIcon}</td>
+                            <td class="gameover-name-cell">
+                                <div class="gameover-name-flex">
+                                    <span class="gameover-avatar">${p.avatar}</span>
+                                    <span class="gameover-name">${p.name}</span>
                                 </div>
                             </td>
-                            <td style="padding:10px; border-bottom:1px solid #eee; text-align:right; font-weight:bold; font-size:1.2em;">${p.score}</td>
+                            <td class="gameover-score-cell">${p.score}</td>
                         </tr>
                  `}).join('')}
                  </tbody>

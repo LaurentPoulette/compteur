@@ -48,7 +48,7 @@ body {
     overflow-y: auto;
     background-color: var(--background-color);
     transition: transform var(--transition-speed) ease-in-out;
-    padding: 20px;
+    padding: 2px;
     display: flex;
     flex-direction: column;
 }
@@ -90,8 +90,6 @@ button:active {
 
 .card {
     background: var(--surface-color);
-    border-radius: 12px;
-    padding: 16px;
     margin-bottom: 16px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
@@ -134,7 +132,24 @@ button:active {
 .history-table th,
 .history-table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 0px;
+}
+
+/* Score Input Styles */
+.score-input {
+    width: 100%;
+    padding: 2px;
+    text-align: center;
+    border: 0px solid #ddd;
+    /*border-radius: 4px;*/
+    font-size: 1rem;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+}
+
+.score-input:focus {
+    outline: 2px solid var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 /* Burger Menu */
@@ -185,4 +200,219 @@ button:active {
 
 .menu-item.danger {
     color: #ef4444;
+}
+
+/* Refactored Table Styles */
+.history-table .history-header {
+    padding: 10px;
+}
+
+.history-table .history-header-check {
+    padding: 10px;
+    color: #666;
+}
+
+.history-table .history-cell-round {
+    /*padding: 10px;*/
+    border-bottom: 1px solid #eee;
+}
+
+.history-table .history-cell-score {
+    padding: 0px;
+    border-bottom: 1px solid #eee;
+}
+
+.history-table .history-cell-check {
+    padding: 0px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+}
+
+.leaderboard-table .leaderboard-cell {
+    padding: 2px;
+    border-right: 1px solid #eee;
+}
+
+.leaderboard-table .gameover-rank-cell {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    width: 40px;
+    text-align: center;
+}
+
+.leaderboard-table .gameover-name-cell {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.leaderboard-table .gameover-score-cell {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Utilities */
+.text-primary {
+    color: var(--primary-color);
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+/* Leaderboard Specifics */
+.leaderboard-table {
+    width: 100%;
+    font-size: 0.9em;
+}
+
+.leaderboard-card {
+    border-radius: 8px;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+    /* Base border */
+}
+
+/* Themes */
+.leaderboard-card.theme-default {
+    background-color: #e0f2fe;
+    border-color: #3b82f6;
+}
+
+.leaderboard-card.theme-default .leaderboard-rank {
+    color: #3b82f6;
+}
+
+.leaderboard-card.theme-first {
+    background-color: #dcfce7;
+    border-color: #22c55e;
+}
+
+.leaderboard-card.theme-first .leaderboard-rank {
+    color: #22c55e;
+}
+
+.leaderboard-card.theme-last {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+}
+
+.leaderboard-card.theme-last .leaderboard-rank {
+    color: #ef4444;
+}
+
+/* Inner elements */
+.leaderboard-rank {
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.leaderboard-avatar {
+    font-size: 1.2em;
+}
+
+.leaderboard-name {
+    font-weight: 600;
+    font-size: 0.9em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.leaderboard-score {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Sticky Leaderboard (Active Game) */
+#sticky-leaderboard {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--surface-color);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: 100;
+}
+
+.sticky-leaderboard-title {
+    margin: 0 0 5px 0;
+    text-align: center;
+    opacity: 0.6;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.sticky-leaderboard-content {
+    padding: 0 10px 10px 10px;
+    overflow-x: auto;
+}
+
+/* Game Over View */
+.gameover-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.gameover-icon {
+    font-size: 5em;
+    margin-bottom: 10px;
+}
+
+.gameover-title {
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.gameover-subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1.2em;
+}
+
+.gameover-section-title {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.gameover-name-flex {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gameover-avatar {
+    font-size: 1.5em;
+    margin-right: 10px;
+}
+
+.gameover-name {
+    font-weight: bold;
+}
+
+.rank-text-0 {
+    font-size: 1.5em;
+}
+
+.rank-text-1 {
+    font-size: 1.3em;
+}
+
+.rank-text-2 {
+    font-size: 1.2em;
+}
+
+.rank-text-default {
+    font-size: 1em;
 }
