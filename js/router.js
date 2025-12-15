@@ -17,6 +17,14 @@ export class Router {
         newView.className = 'view';
         newView.innerHTML = viewContent;
 
+        // Execute inline scripts (innerHTML does not execute them)
+        Array.from(newView.querySelectorAll('script')).forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+
         // Determine animation class
         if (direction === 'forward') {
             newView.classList.add('slide-in-right');
@@ -53,16 +61,19 @@ export class Router {
             if (currentView) {
                 this.app.removeChild(currentView);
             }
-            // Bind events for the new view here if needed, or return the element to the caller
-        }, 350); // Match CSS transition speed
+        }, 350);
 
-        this.history.push({ name, params });
+        // Only push to history if moving forward (or initial load)
+        if (direction !== 'back') {
+            this.history.push({ name, params });
+        }
     }
 
     back() {
         if (this.history.length > 1) {
-            this.history.pop(); // Current
-            const prev = this.history[this.history.length - 1];
+            this.history.pop(); // Remove current state
+            const prev = this.history[this.history.length - 1]; // Get previous state
+            // Navigate back to it, but don't modify history stack
             this.navigate(prev.name, prev.params, 'back');
         }
     }

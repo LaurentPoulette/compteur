@@ -4,7 +4,8 @@ export class Store {
             games: [], // List of defined game types
             players: [], // List of known players
             activeGame: null, // Current running game state
-            history: [] // Past games
+            history: [], // Past games
+            lastSelectedPlayers: [] // IDs of players selected in the last game
         };
         this.load();
     }
@@ -25,10 +26,10 @@ export class Store {
     seedDefaults() {
         // Default games
         this.state.games = [
-            { id: 'belote', name: 'Belote', winCondition: 'highest', target: 1000, color: '#ef4444', icon: '🃏' },
-            { id: 'tarot', name: 'Tarot', winCondition: 'highest', target: 0, color: '#3b82f6', icon: '🃏' },
-            { id: 'uno', name: 'UNO', winCondition: 'lowest', target: 500, color: '#eab308', icon: '🃏' },
-            { id: '5R', name: 'Cinq rois', winCondition: 'lowest', target: 0, rounds: 13, color: '#eab308', icon: '🃏' },
+            { id: 'belote', name: 'Belote', winCondition: 'highest', target: 1000, color: '#ef4444', icon: '&nbsp;🃑&nbsp;' },
+            { id: 'tarot', name: 'Tarot', winCondition: 'highest', target: 0, color: '#3b82f6', icon: '&nbsp;🃑&nbsp;' },
+            { id: 'uno', name: 'UNO', winCondition: 'lowest', target: 500, color: '#eab308', icon: '&nbsp;🃑&nbsp;' },
+            { id: '5R', name: 'Cinq rois', winCondition: 'lowest', target: 0, rounds: 13, color: '#eab308', icon: '&nbsp;🃑&nbsp;' },
         ];
         // Default players (example)
         this.state.players = [

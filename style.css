@@ -423,3 +423,40 @@ button:active {
 .rank-text-default {
     font-size: 1em;
 }
+
+.game-card-icon {
+    font-size: 2.5em;
+    margin-right: 2px;
+}
+
+/* Drag and Drop Styles */
+.draggable-item {
+    transition: background-color 0.2s, transform 0.2s;
+    touch-action: none;
+    /* Prevent scrolling while dragging */
+}
+
+.draggable-item.dragging-source {
+    opacity: 0.3;
+    background: #f0f0f0;
+    border: 1px dashed #ccc;
+}
+
+.draggable-mirror {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    /* Let clicks pass through to detect elements below */
+    opacity: 0.9;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+    /* Slightly larger pop effect */
+    background: var(--surface-color);
+    width: 100%;
+    /* Will be set dynamically preferably, but generic fallback */
+    max-width: 90vw;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}

@@ -7,7 +7,15 @@ class App {
         this.store = new Store();
         this.router = new Router(document.getElementById('app'));
 
-        this.selectedPlayers = new Set();
+        this.selectedPlayers = [];
+
+        // Initialize persistent selection from store immediately
+        if (this.store.state.lastSelectedPlayers && Array.isArray(this.store.state.lastSelectedPlayers)) {
+            const allIds = new Set(this.store.getPlayers().map(p => p.id));
+            this.store.state.lastSelectedPlayers.forEach(pid => {
+                if (allIds.has(pid)) this.selectedPlayers.push(pid);
+            });
+        }
 
         this.init();
     }
@@ -48,20 +56,199 @@ class App {
     /* Actions attached to window.app */
 
     selectGame(gameId) {
-        this.selectedPlayers.clear();
         this.router.navigate('playerSelect', { gameId });
     }
-
     togglePlayer(playerId) {
-        if (this.selectedPlayers.has(playerId)) {
-            this.selectedPlayers.delete(playerId);
+        const index = this.selectedPlayers.indexOf(playerId);
+        if (index !== -1) {
+            this.selectedPlayers.splice(index, 1);
         } else {
-            this.selectedPlayers.add(playerId);
+            this.selectedPlayers.push(playerId);
         }
+        this.updateSelectedPlayersUI();
+    }
+
+    movePlayer(index, direction) {
+        if (direction === -1 && index > 0) {
+            // Move Up
+            [this.selectedPlayers[index], this.selectedPlayers[index - 1]] = [this.selectedPlayers[index - 1], this.selectedPlayers[index]];
+        } else if (direction === 1 && index < this.selectedPlayers.length - 1) {
+            // Move Down
+            [this.selectedPlayers[index], this.selectedPlayers[index + 1]] = [this.selectedPlayers[index + 1], this.selectedPlayers[index]];
+        }
+        this.updateSelectedPlayersUI();
+    }
+
+    updateSelectedPlayersUI() {
+        const listContainer = document.getElementById('selected-players-list');
+        if (!listContainer) return;
+
+        const players = this.store.getPlayers();
+
+        if (this.selectedPlayers.length === 0) {
+            listContainer.innerHTML = '<p style="color:#999; text-align:center; padding:10px;">Aucun joueur sélectionné</p>';
+            return;
+        }
+
+        listContainer.innerHTML = this.selectedPlayers.map((pid, index) => {
+            const p = players.find(pl => pl.id === pid);
+            if (!p) return '';
+
+            return `
+                <div class="card draggable-item" draggable="true" data-index="${index}" style="display:flex; align-items:center; padding:10px; margin-bottom:10px; cursor: move; user-select: none; touch-action: none;">
+                    <div style="margin-right:15px; cursor:move; font-size:1.2em; color:#ccc;">☰</div>
+                    <span style="font-size:1.5em; margin-right:10px;">${p.avatar}</span>
+                    <span style="flex:1; font-weight:bold;">${p.name}</span>
+                </div>
+            `;
+        }).join('');
+
+        this.initDragAndDrop();
+    }
+
+    initDragAndDrop() {
+        const container = document.getElementById('selected-players-list');
+        if (!container) return;
+
+        let draggedItem = null;
+        let originalIndex = null;
+
+        const items = container.querySelectorAll('.draggable-item');
+
+        const onDragStart = (e, index) => {
+            draggedItem = items[index];
+            originalIndex = index;
+            e.dataTransfer?.setData('text/plain', index);
+            draggedItem.classList.add('dragging-source');
+        };
+
+        const onDragEnd = () => {
+            if (draggedItem) draggedItem.classList.remove('dragging-source');
+            draggedItem = null;
+            originalIndex = null;
+            items.forEach(item => item.classList.remove('drag-over'));
+        };
+
+        const onDragOver = (e) => {
+            e.preventDefault();
+            const target = e.target.closest('.draggable-item');
+            if (target && target !== draggedItem) {
+                // Remove drag-over from all others
+                items.forEach(item => item !== target && item.classList.remove('drag-over'));
+                target.classList.add('drag-over');
+            }
+        };
+
+        const onDrop = (e) => {
+            e.preventDefault();
+            const target = e.target.closest('.draggable-item');
+            if (target && draggedItem) {
+                const targetIndex = parseInt(target.dataset.index);
+                const sourceIndex = originalIndex;
+
+                if (sourceIndex !== targetIndex) {
+                    // Update array - Remove from source, insert at target
+                    const [removed] = this.selectedPlayers.splice(sourceIndex, 1);
+                    this.selectedPlayers.splice(targetIndex, 0, removed);
+
+                    // Allow UI update
+                    this.updateSelectedPlayersUI();
+                }
+            }
+        };
+
+        // Standard Drag Events
+        items.forEach((item, index) => {
+            item.addEventListener('dragstart', (e) => onDragStart(e, index));
+            item.addEventListener('dragend', onDragEnd);
+        });
+
+        container.addEventListener('dragover', onDragOver);
+        container.addEventListener('drop', onDrop);
+
+        // Touch Events for Mobile
+        let touchStartIndex = null;
+        let mirrorElement = null;
+        let touchedItem = null;
+
+        const onTouchStart = (e) => {
+            const item = e.target.closest('.draggable-item');
+            if (!item) return;
+
+            touchedItem = item;
+            touchStartIndex = parseInt(item.dataset.index);
+
+            // Create "mirror" element (visual clone)
+            mirrorElement = item.cloneNode(true);
+            mirrorElement.classList.add('draggable-mirror');
+
+            // Calculate position to center under finger or keep relative offset
+            const rect = item.getBoundingClientRect();
+            // We want the mirror to visually align initially
+            mirrorElement.style.width = `${rect.width}px`;
+            mirrorElement.style.left = `${rect.left}px`;
+            mirrorElement.style.top = `${rect.top}px`;
+
+            document.body.appendChild(mirrorElement);
+            item.classList.add('dragging-source');
+        };
+
+        const onTouchMove = (e) => {
+            if (!mirrorElement) return;
+            e.preventDefault(); // Prevent scrolling based on CSS touch-action: none
+
+            const touch = e.touches[0];
+
+            // Move the mirror to wrap the finger
+            mirrorElement.style.left = `${touch.clientX - mirrorElement.offsetWidth / 2}px`;
+            mirrorElement.style.top = `${touch.clientY - mirrorElement.offsetHeight / 2}px`;
+
+            const elementUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetItem = elementUnder ? elementUnder.closest('.draggable-item') : null;
+
+            // Visual feedback on potential target
+            items.forEach(item => item.classList.remove('drag-over'));
+            if (targetItem && targetItem !== touchedItem) {
+                targetItem.classList.add('drag-over');
+            }
+        };
+
+        const onTouchEnd = (e) => {
+            if (!touchedItem) return;
+
+            touchedItem.classList.remove('dragging-source');
+            items.forEach(item => item.classList.remove('drag-over'));
+
+            if (mirrorElement) {
+                mirrorElement.remove();
+                mirrorElement = null;
+            }
+
+            const changedTouch = e.changedTouches[0];
+            const elementUnder = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+            const targetItem = elementUnder ? elementUnder.closest('.draggable-item') : null;
+
+            if (targetItem) {
+                const targetIndex = parseInt(targetItem.dataset.index);
+                if (touchStartIndex !== null && targetIndex !== null && touchStartIndex !== targetIndex && !isNaN(targetIndex)) {
+                    const [removed] = this.selectedPlayers.splice(touchStartIndex, 1);
+                    this.selectedPlayers.splice(targetIndex, 0, removed);
+                    this.updateSelectedPlayersUI();
+                }
+            }
+            touchedItem = null;
+            touchStartIndex = null;
+        };
+
+        items.forEach(item => {
+            item.addEventListener('touchstart', onTouchStart, { passive: false });
+            item.addEventListener('touchmove', onTouchMove, { passive: false });
+            item.addEventListener('touchend', onTouchEnd);
+        });
     }
 
     proceedToSetup(gameId) {
-        if (this.selectedPlayers.size === 0) {
+        if (this.selectedPlayers.length === 0) {
             alert("Sélectionnez au moins un joueur !");
             return;
         }
@@ -78,7 +265,13 @@ class App {
         };
 
         const game = this.store.getGames().find(g => g.id === gameId);
-        this.store.startNewSession(gameId, Array.from(this.selectedPlayers), game.name, config);
+
+        // Save selected players for next time (in store) - Order is preserved
+        const playersList = [...this.selectedPlayers];
+        this.store.state.lastSelectedPlayers = playersList;
+        this.store.save();
+
+        this.store.startNewSession(gameId, playersList, game.name, config);
         this.router.navigate('game');
     }
 

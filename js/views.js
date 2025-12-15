@@ -17,12 +17,14 @@ export const HomeView = (store) => {
 
         <div class="grid" style="padding-bottom:100px;">
             ${games.map(g => `
-                <div class="card" onclick="window.app.selectGame('${g.id}')" style="border-left: 5px solid ${g.color || '#ccc'}; position:relative; min-height:80px; display:flex; align-items:center;">
-                    <div style="position:absolute; top:10px; right:10px; z-index:10;">
-                        <span onclick="event.stopPropagation(); window.app.editGame('${g.id}')" style="cursor:pointer; font-size:1.2em; padding:5px;">✏️</span>
+                <div class="card" onclick="window.app.selectGame('${g.id}')" style="border-left: 5px solid ${g.color || '#ccc'}; min-height:80px; display:flex; align-items:center; justify-content: space-between; padding-right: 10px;">
+                    <div style="display:flex; align-items:center;">
+                        <div class="game-card-icon">${g.icon || '🎲'}</div>
+                        <h3 style="margin:0;">${g.name}</h3>
                     </div>
-                    <div style="font-size: 2.5em; margin-right: 15px;">${g.icon || '🎲'}</div>
-                    <h3 style="margin-right: 60px;">${g.name}</h3>
+                    <div style="z-index:10;">
+                        <span onclick="event.stopPropagation(); window.app.editGame('${g.id}')" style="cursor:pointer; font-size:1.2em; padding:10px;">✏️</span>
+                    </div>
                 </div>
             `).join('')}
         </div>
@@ -43,14 +45,31 @@ export const PlayerSelectView = (store, gameId) => {
         </header>
         <p class="subtitle">Sélectionnez les joueurs pour la partie</p>
         <div class="grid" id="player-grid">
-            ${players.map(p => `
-                <div class="card player-card" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.togglePlayer('${p.id}')" style="cursor:pointer; position:relative;">
+            ${players.map(p => {
+        const isSelected = window.app.selectedPlayers.includes(p.id);
+        return `
+                <div class="card player-card ${isSelected ? 'selected' : ''}" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.togglePlayer('${p.id}')" style="cursor:pointer; position:relative;">
                     <div onclick="event.stopPropagation(); window.app.editPlayer('${p.id}')" style="position:absolute; top:5px; right:5px; padding:5px; font-size:1.2rem; line-height:1;">✏️</div>
                     <span style="font-size:2em;">${p.avatar}</span>
                     <h3>${p.name}</h3>
                 </div>
-            `).join('')}
+            `;
+    }).join('')}
         </div>
+        </div>
+        
+        <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
+            <p class="subtitle" style="margin-bottom:10px;">Ordre du tour (Joueurs sélectionnés)</p>
+            <div id="selected-players-list">
+                <!-- Populated by window.app.updateSelectedPlayersUI() -->
+            </div>
+            
+             <script>
+                // Auto-init list on view load
+                setTimeout(() => window.app.updateSelectedPlayersUI(), 0);
+            </script>
+        </div>
+
         <div style="margin-top: 20px; text-align: center;">
             <button onclick="window.app.proceedToSetup('${gameId}')" style="width:100%">Suivant</button>
         </div>
@@ -246,7 +265,7 @@ export const CreateGameView = () => `
         <label style="display:block; margin-bottom:10px;">
             Icône
              <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
-                ${['🎲', '🃏', '♟️', '🎯', '🎳'].map(emoji => `
+                ${['🎲', '&nbsp;🃑&nbsp;', '♟️', '🎯', '🎳'].map(emoji => `
                     <div onclick="document.querySelectorAll('.game-icon-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('new-game-icon').value='${emoji}'" class="game-icon-opt ${emoji === '🎲' ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
                 `).join('')}
             </div>
@@ -317,7 +336,7 @@ export const EditGameView = (store, gameId) => {
         <label style="display:block; margin-bottom:10px;">
             Icône
              <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
-                ${['🎲', '🃏', '♟️', '🎯', '🎳'].map(emoji => `
+                ${['🎲', '&nbsp;🃑&nbsp;', '♟️', '🎯', '🎳'].map(emoji => `
                     <div onclick="document.querySelectorAll('.game-icon-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('edit-game-icon').value='${emoji}'" class="game-icon-opt ${game.icon === emoji ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
                 `).join('')}
             </div>
