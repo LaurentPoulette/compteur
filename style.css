@@ -29,6 +29,8 @@ body {
     overflow: hidden;
     /* Prevent scrolling on body, handle in views */
     height: 100vh;
+    height: var(--app-height, 100vh);
+    /* Fallback */
     width: 100vw;
 }
 
@@ -45,12 +47,28 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
+    overflow-y: hidden;
     background-color: var(--background-color);
     transition: transform var(--transition-speed) ease-in-out;
     padding: 2px;
     display: flex;
     flex-direction: column;
+}
+
+/* ... existing code ... */
+
+/* Sticky Leaderboard (Active Game) */
+#sticky-leaderboard {
+    /* No longer fixed position if we flex the parent */
+    position: relative;
+    width: 100%;
+    background: var(--surface-color);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: 100;
+    /* Remove padding calc hack if using flex layout in view */
+    flex-shrink: 0;
 }
 
 /* Slide Transitions */
@@ -331,18 +349,7 @@ button:active {
     font-size: 1.1em;
 }
 
-/* Sticky Leaderboard (Active Game) */
-#sticky-leaderboard {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--surface-color);
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    z-index: 100;
-}
+
 
 .sticky-leaderboard-title {
     margin: 0 0 5px 0;

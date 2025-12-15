@@ -135,7 +135,7 @@ class App {
                 name,
                 winCondition: typeInput.value,
                 icon: iconInput.value,
-                target: 0,
+                target: (document.getElementById('new-game-target').value) ? parseInt(document.getElementById('new-game-target').value) : 0,
                 color: colorInput.value,
                 rounds: roundsInput.value ? parseInt(roundsInput.value) : null,
                 fixedRoundScore: fixedScoreCheck.checked && fixedScoreValue.value ? parseInt(fixedScoreValue.value) : null
@@ -170,6 +170,7 @@ class App {
                 winCondition: typeInput.value,
                 icon: iconInput.value,
                 color: colorInput.value,
+                target: (document.getElementById('edit-game-target').value) ? parseInt(document.getElementById('edit-game-target').value) : 0,
                 rounds: roundsInput.value ? parseInt(roundsInput.value) : null,
                 fixedRoundScore: fixedScoreCheck.checked && fixedScoreValue.value ? parseInt(fixedScoreValue.value) : null
             });
@@ -527,5 +528,13 @@ class App {
 
 // Start
 document.addEventListener('DOMContentLoaded', () => {
+    // Dynamic Viewport Height Fix
+    const setAppHeight = () => {
+        const doc = document.documentElement;
+        doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', setAppHeight);
+    setAppHeight();
+
     new App();
 });

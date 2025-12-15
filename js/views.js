@@ -117,6 +117,7 @@ export const ActiveGameView = (store) => {
                             <td class="leaderboard-cell">
                                  <div class="leaderboard-card ${themeClass}">
                                     <span class="leaderboard-rank">${i + 1} ${p.avatar} ${p.score}</span>
+                                    <br>
                                     <span class="name-full">${p.name}</span>
                                     <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
                                     
@@ -130,7 +131,8 @@ export const ActiveGameView = (store) => {
     };
 
     return `
-        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; z-index:1001; position:relative;">
+        <div style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; z-index:1001; position:relative; flex-shrink:0;">
 
             <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
                 <span style="font-size:1.5em; flex-shrink:0;">${game.icon || '🎲'}</span>
@@ -158,8 +160,8 @@ export const ActiveGameView = (store) => {
             </div>
         </div>
         
-        <div style="padding-bottom: 280px;">
-            <div class="card" style="overflow-x: auto; max-height: 60vh; overflow-y: auto;">
+        <div style="flex:1; overflow-y:auto; padding-bottom: 20px;">
+            <div class="card" style="overflow-x: auto; max-width: 100%;">
                 <table class="history-table" style="text-align: center;">
                     <thead style="position: sticky; top: 0; background: var(--surface-color); z-index: 1;">
                         <tr>
@@ -226,6 +228,8 @@ export const ActiveGameView = (store) => {
                 ${getLeaderboardHTML()}
             </div>
         </div>
+        </div>
+    </div>
     `;
 };
 export const CreateGameView = () => `
@@ -255,6 +259,11 @@ export const CreateGameView = () => `
                 <option value="highest">Score le plus élevé</option>
                 <option value="lowest">Score le moins élevé</option>
             </select>
+        </label>
+
+        <label style="display:block; margin-bottom:10px;">
+            Score Cible (optionnel)
+            <input type="number" id="new-game-target" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
         </label>
 
         <label style="display:block; margin-bottom:10px;">
@@ -321,6 +330,11 @@ export const EditGameView = (store, gameId) => {
                 <option value="highest" ${game.winCondition === 'highest' ? 'selected' : ''}>Score le plus élevé</option>
                 <option value="lowest" ${game.winCondition === 'lowest' ? 'selected' : ''}>Score le moins élevé</option>
             </select>
+        </label>
+
+        <label style="display:block; margin-bottom:10px;">
+            Score Cible (optionnel)
+            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
         </label>
 
         <label style="display:block; margin-bottom:10px;">
