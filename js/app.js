@@ -1,6 +1,6 @@
 import { Store } from './store.js';
 import { Router } from './router.js';
-import { HomeView, PlayerSelectView, ActiveGameView, CreateGameView, CreatePlayerView, EditPlayerView, GameSetupView, AddIngamePlayerView, RemoveIngamePlayerView, ReorderIngamePlayersView, ConfirmRemoveIngamePlayerView, ConfirmEndGameView, AboutView, StatisticsView, EditGameView, ConfirmDeleteGameView, ConfirmCancelGameView, GameOverView, UpdateLimitsView } from './views.js';
+import { HomeView, PlayerSelectView, PlayerOrderView, ActiveGameView, CreateGameView, CreatePlayerView, EditPlayerView, GameSetupView, AddIngamePlayerView, RemoveIngamePlayerView, ReorderIngamePlayersView, ConfirmRemoveIngamePlayerView, ConfirmEndGameView, AboutView, StatisticsView, EditGameView, ConfirmDeleteGameView, ConfirmCancelGameView, GameOverView, UpdateLimitsView } from './views.js';
 
 class App {
     constructor() {
@@ -24,6 +24,7 @@ class App {
         // Register Routes
         this.router.register('home', () => HomeView(this.store));
         this.router.register('playerSelect', ({ gameId }) => PlayerSelectView(this.store, gameId));
+        this.router.register('playerOrder', ({ gameId }) => PlayerOrderView(this.store, gameId));
         this.router.register('game', () => ActiveGameView(this.store));
         this.router.register('createGame', () => CreateGameView());
         this.router.register('createPlayer', () => CreatePlayerView());
@@ -206,6 +207,14 @@ class App {
 
     selectGame(gameId) {
         this.router.navigate('playerSelect', { gameId });
+    }
+
+    navigatePlayerOrder(gameId) {
+        if (this.selectedPlayers.length === 0) {
+            alert("Sélectionnez au moins un joueur !");
+            return;
+        }
+        this.router.navigate('playerOrder', { gameId });
     }
     togglePlayer(playerId) {
         const index = this.selectedPlayers.indexOf(playerId);
@@ -578,11 +587,9 @@ class App {
     submitCreateGame() {
         const nameInput = document.getElementById('new-game-name');
         const typeInput = document.getElementById('new-game-type');
-        const colorInput = document.getElementById('new-game-color');
-        const iconInput = document.getElementById('new-game-icon');
-
         const roundsInput = document.getElementById('new-game-rounds');
-        const fixedScoreCheck = document.getElementById('new-game-fixed-score-check');
+
+
         const fixedScoreValue = document.getElementById('new-game-fixed-score-value');
 
         const name = nameInput.value.trim();
@@ -591,11 +598,9 @@ class App {
             this.store.createGame({
                 name,
                 winCondition: typeInput.value,
-                icon: iconInput.value,
                 target: (document.getElementById('new-game-target').value) ? parseInt(document.getElementById('new-game-target').value) : 0,
-                color: colorInput.value,
                 rounds: roundsInput.value ? parseInt(roundsInput.value) : null,
-                fixedRoundScore: fixedScoreCheck.checked && fixedScoreValue.value ? parseInt(fixedScoreValue.value) : null
+                fixedRoundScore: fixedScoreValue.value ? parseInt(fixedScoreValue.value) : null
             });
             this.router.back();
         } else {
@@ -611,11 +616,9 @@ class App {
         const idInput = document.getElementById('edit-game-id');
         const nameInput = document.getElementById('edit-game-name');
         const typeInput = document.getElementById('edit-game-type');
-        const colorInput = document.getElementById('edit-game-color-output');
-        const iconInput = document.getElementById('edit-game-icon');
-
         const roundsInput = document.getElementById('edit-game-rounds');
-        const fixedScoreCheck = document.getElementById('edit-game-fixed-score-check');
+
+
         const fixedScoreValue = document.getElementById('edit-game-fixed-score-value');
 
         const id = idInput.value;
@@ -625,11 +628,9 @@ class App {
             this.store.updateGame(id, {
                 name,
                 winCondition: typeInput.value,
-                icon: iconInput.value,
-                color: colorInput.value,
                 target: (document.getElementById('edit-game-target').value) ? parseInt(document.getElementById('edit-game-target').value) : 0,
                 rounds: roundsInput.value ? parseInt(roundsInput.value) : null,
-                fixedRoundScore: fixedScoreCheck.checked && fixedScoreValue.value ? parseInt(fixedScoreValue.value) : null
+                fixedRoundScore: fixedScoreValue.value ? parseInt(fixedScoreValue.value) : null
             });
             this.router.back();
         } else {
@@ -783,11 +784,11 @@ class App {
         if (isRoundComplete) {
             // Check Max Rounds
             if (effectiveRounds && session.history.length >= effectiveRounds) {
-                reason = "Nombre de tours maximum atteint";
+                reason = "Limite de tours atteinte";
             } else if (effectiveTarget && effectiveTarget > 0) {
                 // Check if any player has reached the target
                 const anyReached = session.players.some(p => p.score >= effectiveTarget);
-                if (anyReached) reason = "Score cible atteint";
+                if (anyReached) reason = "Limite de score atteinte";
             }
         }
 

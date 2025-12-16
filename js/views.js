@@ -24,9 +24,8 @@ export const HomeView = (store) => {
             </div>
 
             ${games.map(g => `
-                <div class="card" onclick="window.app.selectGame('${g.id}')" style="border-left: 5px solid ${g.color || '#ccc'}; min-height:80px; display:flex; align-items:center; justify-content: space-between; padding-right: 10px;">
+                <div class="card" onclick="window.app.selectGame('${g.id}')" style="min-height:80px; display:flex; align-items:center; justify-content: space-between;">
                     <div style="display:flex; align-items:center;">
-                        <div class="game-card-icon">${g.icon || '🎲'}</div>
                         <h3 style="margin:0;">${g.name}</h3>
                     </div>
                     <div style="z-index:10;">
@@ -42,11 +41,11 @@ export const PlayerSelectView = (store, gameId) => {
     const players = store.getPlayers();
     return `
         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-            <h1>Joueurs</h1>
+            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+            <h1>Choix des joueurs</h1>
         </header>
         <p class="subtitle">Sélectionnez les joueurs pour la partie</p>
-        <div class="grid" id="player-grid">
+        <div class="grid" id="player-grid" style="padding-bottom: 100px;">
             <!-- New Player Card -->
             <div class="card" onclick="window.app.router.navigate('createPlayer')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:80px; border: 2px dashed #ccc; background:transparent;">
                  <div style="text-align:center; color:#888;">
@@ -57,32 +56,23 @@ export const PlayerSelectView = (store, gameId) => {
             ${players.map(p => {
         const isSelected = window.app.selectedPlayers.includes(p.id);
         return `
-                <div class="card player-card ${isSelected ? 'selected' : ''}" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.togglePlayer('${p.id}')" style="cursor:pointer; position:relative;">
-                    <div onclick="event.stopPropagation(); window.app.editPlayer('${p.id}')" style="position:absolute; top:5px; right:5px; padding:5px; font-size:1.2rem; line-height:1;">✏️</div>
-                    <div style="height:50px; display:flex; align-items:center; justify-content:center;">
-                        ${p.photo ? `<img src="${p.photo}" style="width:50px; height:50px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:2em;">${p.avatar}</span>`}
+                <div class="card player-card ${isSelected ? 'selected' : ''}" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.togglePlayer('${p.id}')" style="cursor:pointer; padding:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px;">
+                        <div style="width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                             ${p.photo ? `<img src="${p.photo}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:1.8em;">${p.avatar}</span>`}
+                        </div>
+                        <div onclick="event.stopPropagation(); window.app.editPlayer('${p.id}')" style="font-size:1.2rem; cursor:pointer;">✏️</div>
                     </div>
-                    <h3>${p.name}</h3>
+                    <div style="text-align:center;">
+                        <h3 style="margin:0; font-size:1em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name}</h3>
+                    </div>
                 </div>
             `;
     }).join('')}
         </div>
-        </div >
         
-        <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
-            <p class="subtitle" style="margin-bottom:10px;">Ordre des joueurs</p>
-            <div id="selected-players-list">
-                <!-- Populated by window.app.updateSelectedPlayersUI() -->
-            </div>
-            
-             <script>
-                // Auto-init list on view load
-                setTimeout(() => window.app.updateSelectedPlayersUI(), 0);
-            </script>
-        </div>
-
-        <div style="margin-top: 20px; text-align: center;">
-            <button onclick="window.app.proceedToSetup('${gameId}')" style="width:100%">Suivant</button>
+        <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
+            <button onclick="window.app.navigatePlayerOrder('${gameId}')" style="width:100%; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Suivant</button>
         </div>
         <style>
             .player-card.selected { border: 2px solid var(--primary-color); background-color: #e0f2fe; }
@@ -90,9 +80,31 @@ export const PlayerSelectView = (store, gameId) => {
 `;
 };
 
+export const PlayerOrderView = (store, gameId) => {
+    return `
+        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+            <h1>Ordre</h1>
+        </header>
+        <p class="subtitle">Définissez l'ordre de tour des joueurs</p>
+        
+        <div id="selected-players-list" style="margin-bottom:80px;">
+             <!-- Populated by window.app.updateSelectedPlayersUI() -->
+        </div>
+
+        <script>
+            setTimeout(() => window.app.updateSelectedPlayersUI(), 0);
+        </script>
+
+        <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
+            <button onclick="window.app.proceedToSetup('${gameId}')" style="width:100%; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Suivant</button>
+        </div>
+`;
+};
+
 export const ActiveGameView = (store) => {
     const session = store.restoreSession();
-    if (!session) return `< div class="card" > Erreur: Pas de session active.</div > `;
+    if (!session) return `<div class="card">Erreur: Pas de session active.</div>`;
 
     const game = store.getGames().find(g => g.id === session.gameId);
     const isLowestWin = game && game.winCondition === 'lowest';
@@ -114,13 +126,13 @@ export const ActiveGameView = (store) => {
 
     if (isRoundComplete) {
         if (effectiveRounds && session.history.length >= effectiveRounds) {
-            gameOverReason = "Nombre de tours maximum atteint";
+            gameOverReason = "Limite de tours atteinte";
         } else if (effectiveTarget && effectiveTarget > 0) {
             // Check if anyone reached the target
             // Depending on winCondition (highest/lowest), logic might differ, 
             // but usually 'target' is a threshold.
             const anyReached = players.some(p => p.score >= effectiveTarget);
-            if (anyReached) gameOverReason = "Score cible atteint";
+            if (anyReached) gameOverReason = "Limite de score atteinte";
         }
     }
 
@@ -131,7 +143,7 @@ export const ActiveGameView = (store) => {
     const getLeaderboardHTML = () => {
         const sorted = [...players].sort((a, b) => isLowestWin ? a.score - b.score : b.score - a.score);
         return `
-    < table class="leaderboard-table" >
+    <table class="leaderboard-table">
         <tbody>
             <tr>
                 ${sorted.map((p, i) => {
@@ -160,21 +172,21 @@ export const ActiveGameView = (store) => {
                      `}).join('')}
             </tr>
         </tbody>
-            </table >
+            </table>
     `;
     };
 
     return `
-    < div style = "display:flex; flex-direction:column; height:100%; overflow:hidden;" >
+    <div style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; z-index:1001; position:relative; flex-shrink:0;">
 
             <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
-                <span style="font-size:1.8em; flex-shrink:0;">${game.icon || '🎲'}</span>
+
                 <h3 style="margin:0; font-size:1.3rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:1;">${session.title}</h3>
                 
                 <div style="font-size:0.9em; color:#666; display:flex; align-items:center; gap:8px; white-space:nowrap; flex-shrink:0;">
-                    <span style="border-left:1px solid #ccc; padding-left:8px;">🏁 ${((session.config && session.config.rounds !== undefined) ? session.config.rounds : game.rounds) || '∞'}</span>
-                    <span>🎯 ${((session.config && session.config.target !== undefined) ? session.config.target : game.target) || '∞'}</span>
+                    <span style="border-left:1px solid #ccc; padding-left:8px;"><span style="font-size:1.2em;">🔄</span> ${((session.config && session.config.rounds !== undefined) ? session.config.rounds : game.rounds) || '∞'}</span>
+                    <span><span style="font-size:1.2em;">🔢</span> ${((session.config && session.config.target !== undefined) ? session.config.target : game.target) || '∞'}</span>
                 </div>
             </div>
             <button onclick="document.getElementById('game-menu').classList.toggle('active')" style="background:none; color:var(--text-color); padding:0; font-size:1.8rem; margin-left:10px;">&#9776;</button> 
@@ -182,14 +194,17 @@ export const ActiveGameView = (store) => {
 
         <div id="game-over-banner-top" style="display:none;"></div>
 
-        <!--Menu dropdown-- >
+        <!--Menu dropdown-->
         <div id="game-menu" class="menu-overlay" onclick="if(event.target === this) this.classList.remove('active')">
             <div class="menu-content">
+                <div style="font-size:0.8em; color:#999; margin:5px 10px; font-weight:bold;">JOUEUR</div>
                 <button class="menu-item" onclick="window.app.navigateAddPlayerInGame()">Ajouter un joueur</button>
                 <button class="menu-item" onclick="window.app.navigateRemovePlayerInGame()">Supprimer un joueur</button>
-                <button class="menu-item" onclick="window.app.navigateReorderPlayers()">Changer l'ordre des joueurs</button>
-                <button class="menu-item" onclick="window.app.navigateUpdateLimits()">Modifier les limites</button>
+                <button class="menu-item" onclick="window.app.navigateReorderPlayers()">Ordre des joueurs</button>
+                
                 <div style="height:1px; background:#eee; margin:5px 0;"></div>
+                <div style="font-size:0.8em; color:#999; margin:5px 10px; font-weight:bold;">PARTIE</div>
+                <button class="menu-item" onclick="window.app.navigateUpdateLimits()">Modifier les limites</button>
                 <button class="menu-item" onclick="window.app.navigateEndGame()">Terminer la partie</button>
                 <button class="menu-item danger" onclick="window.app.navigateCancelGame()">Annuler la partie</button>
             </div>
@@ -265,79 +280,48 @@ export const ActiveGameView = (store) => {
                 ${getLeaderboardHTML()}
             </div>
         </div>
-        </div >
-    </div >
+            </div>
+        </div>
+    </div>
     `;
 };
 export const CreateGameView = () => `
     <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Nouveau Jeu</h1>
     </header>
     <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-name" style="font-weight:bold; width: 40%;">Nom du jeu</label>
-            <input type="text" id="new-game-name" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-name" style="font-weight:bold; width: 60%;">Nom du jeu</label>
+            <input type="text" id="new-game-name" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
-        <div style="display:block; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <span style="font-weight:bold; display:block; margin-bottom:5px;">Icône</span>
-            <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
-                ${['🎲', '&nbsp;🃑&nbsp;', '♟️', '🎯', '🎳'].map(emoji => `
-                    <div onclick="document.querySelectorAll('.game-icon-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('new-game-icon').value='${emoji}'" class="game-icon-opt ${emoji === '🎲' ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
-                `).join('')}
-            </div>
-            <input type="hidden" id="new-game-icon" value="🎲">
-        </div>
+
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-type" style="font-weight:bold; width: 40%;">Vainqueur</label>
-            <select id="new-game-type" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right; background:white;">
+            <label for="new-game-type" style="font-weight:bold; width: 60%;">Vainqueur</label>
+            <select id="new-game-type" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right; background:white;">
                 <option value="highest">Score le plus élevé</option>
                 <option value="lowest">Score le moins élevé</option>
             </select>
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-target" style="font-weight:bold; width:40%;">Score Cible <!--(opt)--></label>
-            <input type="number" id="new-game-target" placeholder="Illimité" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-target" style="font-weight:bold; width:60%;">Limite de score <!--(opt)--></label>
+            <input type="number" id="new-game-target" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-rounds" style="font-weight:bold; width:40%;">Nombre de tours <!--(opt)--></label>
-            <input type="number" id="new-game-rounds" placeholder="Illimité" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-rounds" style="font-weight:bold; width:60%;">Limite de tours <!--(opt)--></label>
+            <input type="number" id="new-game-rounds" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
-        <div style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
-            <input type="checkbox" id="new-game-fixed-score-check" onchange="document.getElementById('fixed-score-container').style.display = this.checked ? 'block' : 'none'">
-            <label for="new-game-fixed-score-check">Score total par tour fixe ?</label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="new-game-fixed-score-value" style="font-weight:bold; width:60%;">Total score fixe par tour ?</label>
+            <input type="number" id="new-game-fixed-score-value" placeholder="Optionnel" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
-        <div id="fixed-score-container" style="display:none; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <label for="new-game-fixed-score-value" style="font-weight:bold;">Total pts / tour</label>
-                <input type="number" id="new-game-fixed-score-value" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
-            </div>
-        </div>
 
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-             <span style="font-weight:bold;">Couleur</span>
-             <select id="new-game-color" style="width:80px; height:40px; border:1px solid #ccc; border-radius:5px; appearance:none; cursor:pointer;" onchange="this.style.backgroundColor = this.value; this.style.color = this.value;">
-                ${['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b', '#000000', '#84cc16', '#10b981', '#14b8a6', '#4f46e5'].map(c =>
-    `<option value="${c}" style="background-color:${c}; color:${c};" ${c === '#3b82f6' ? 'selected' : ''}>${c}</option>`
-).join('')}
-             </select>
-             <!-- Init style for Select -->
-             <script>
-                setTimeout(() => {
-                    const sel = document.getElementById('new-game-color');
-                    if(sel) {
-                         sel.style.backgroundColor = sel.value;
-                         sel.style.color = sel.value;
-                    }
-                }, 0);
-             </script>
-        </div>
 
         <button onclick="window.app.submitCreateGame()" style="width:100%">Créer</button>
     </div>
@@ -349,75 +333,43 @@ export const EditGameView = (store, gameId) => {
 
     return `
     <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Modifier Jeu</h1>
     </header>
     <div class="card">
         <input type="hidden" id="edit-game-id" value="${game.id}">
         
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-name" style="font-weight:bold; width: 40%;">Nom du jeu</label>
-            <input type="text" id="edit-game-name" value="${game.name}" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-name" style="font-weight:bold; width: 60%;">Nom du jeu</label>
+            <input type="text" id="edit-game-name" value="${game.name}" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
         
-        <div style="display:block; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <span style="font-weight:bold; display:block; margin-bottom:5px;">Icône</span>
-             <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
-                ${['🎲', '&nbsp;🃑&nbsp;', '♟️', '🎯', '🎳'].map(emoji => `
-                    <div onclick="document.querySelectorAll('.game-icon-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('edit-game-icon').value='${emoji}'" class="game-icon-opt ${game.icon === emoji ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
-                `).join('')}
-            </div>
-            <input type="hidden" id="edit-game-icon" value="${game.icon || '🎲'}">
-        </div>
+
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-type" style="font-weight:bold; width: 40%;">Vainqueur</label>
-            <select id="edit-game-type" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; background:white; text-align:right;">
+            <label for="edit-game-type" style="font-weight:bold; width: 60%;">Vainqueur</label>
+            <select id="edit-game-type" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; background:white; text-align:right;">
                 <option value="highest" ${game.winCondition === 'highest' ? 'selected' : ''}>Score le plus élevé</option>
                 <option value="lowest" ${game.winCondition === 'lowest' ? 'selected' : ''}>Score le moins élevé</option>
             </select>
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-target" style="font-weight:bold;">Score Cible <!--(opt)--></label>
-            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-target" style="font-weight:bold; width: 60%;">Limite de score <!--(opt)--></label>
+            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-rounds" style="font-weight:bold;">Nombre de tours <!--(opt)--></label>
-            <input type="number" id="edit-game-rounds" value="${game.rounds || ''}" placeholder="Illimité" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-rounds" style="font-weight:bold; width: 60%;">Limite de tours <!--(opt)--></label>
+            <input type="number" id="edit-game-rounds" value="${game.rounds || ''}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
-        <div style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
-            <input type="checkbox" id="edit-game-fixed-score-check" ${game.fixedRoundScore ? 'checked' : ''} onchange="document.getElementById('edit-fixed-score-container').style.display = this.checked ? 'block' : 'none'">
-            <label for="edit-game-fixed-score-check">Score total par tour fixe ?</label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="edit-game-fixed-score-value" style="font-weight:bold; width:60%;">Score total fixe par tour</label>
+            <input type="number" id="edit-game-fixed-score-value" value="${game.fixedRoundScore || ''}" placeholder="Optionnel" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
-        <div id="edit-fixed-score-container" style="display:${game.fixedRoundScore ? 'block' : 'none'}; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-                <label for="edit-game-fixed-score-value" style="font-weight:bold;">Total pts / tour</label>
-                <input type="number" id="edit-game-fixed-score-value" value="${game.fixedRoundScore || ''}" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
-            </div>
-        </div>
 
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-             <span style="font-weight:bold;">Couleur</span>
-             <select id="edit-game-color-output" style="width:80px; height:40px; border:1px solid #ccc; border-radius:5px; appearance:none; cursor:pointer;" onchange="this.style.backgroundColor = this.value; this.style.color = this.value;">
-                ${['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b', '#000000', '#84cc16', '#10b981', '#14b8a6', '#4f46e5'].map(c =>
-        `<option value="${c}" style="background-color:${c}; color:${c};" ${game.color === c ? 'selected' : ''}>${c}</option>`
-    ).join('')}
-             </select>
-             <!-- Init style for Select -->
-             <script>
-                setTimeout(() => {
-                    const sel = document.getElementById('edit-game-color-output');
-                    if(sel) {
-                        sel.style.backgroundColor = sel.value;
-                        sel.style.color = sel.value;
-                    }
-                }, 0);
-             </script>
-        </div>
 
         <button onclick="window.app.submitEditGame()" style="width:100%; margin-bottom:15px;">Enregistrer</button>
         <button onclick="window.app.navigateDeleteGame('${game.id}')" style="width:100%; background-color:#ef4444; color:white;">Supprimer ce jeu</button>
@@ -434,7 +386,7 @@ export const ConfirmDeleteGameView = (store, gameId) => {
 
     return `
     <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Supprimer Jeu</h1>
     </header>
     <div class="card" style="text-align:center; padding: 40px 20px;">
@@ -449,10 +401,10 @@ export const ConfirmDeleteGameView = (store, gameId) => {
 };
 
 export const CreatePlayerView = () => `
-    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Nouveau Joueur</h1>
-    </header >
+    </header>
     <div class="card">
         <label style="display:block; margin-bottom:20px;">
             Nom du joueur
@@ -500,7 +452,7 @@ export const EditPlayerView = (store, playerId) => {
 
     return `
             <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                 <h1>Modifier Joueur</h1>
             </header>
             <div class="card">
@@ -557,24 +509,26 @@ export const GameSetupView = (store, gameId) => {
 
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Configuration</h1>
                         </header>
-                        <div class="card">
+                        <div class="card" style="margin-bottom: 80px;">
                             <h2 style="margin-bottom:15px; color:var(--primary-color);">${game.name}</h2>
                             <p style="margin-bottom:20px;">Définissez les conditions de fin de partie.</p>
 
-                            <label style="display:block; margin-bottom:15px;">
-                                Limite de Score (optionnel)
-                                <input type="number" id="setup-score-limit" value="${defaultTarget}" placeholder="Ex: 1000" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-                            </label>
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+                                <label for="setup-score-limit" style="font-weight:bold; width: 60%;">Limite de Score</label>
+                                <input type="number" id="setup-score-limit" value="${defaultTarget}" placeholder="Ex: 1000" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+                            </div>
 
-                            <label style="display:block; margin-bottom:20px;">
-                                Nombre de tours (optionnel)
-                                <input type="number" id="setup-round-limit" value="${defaultRounds}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-                            </label>
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+                                <label for="setup-round-limit" style="font-weight:bold; width: 60%;">Nombre de tours</label>
+                                <input type="number" id="setup-round-limit" value="${defaultRounds}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+                            </div>
+                        </div>
 
-                            <button onclick="window.app.finishSetupAndStart('${gameId}')" style="width:100%">Lancer la partie</button>
+                        <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
+                            <button onclick="window.app.finishSetupAndStart('${gameId}')" style="width:100%; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Lancer la partie</button>
                         </div>
                         `;
 };
@@ -590,25 +544,25 @@ export const UpdateLimitsView = (store) => {
 
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Configuration</h1>
                         </header>
-                        <div class="card">
+                        <div class="card" style="margin-bottom: 80px;">
                             <p style="margin-bottom:20px; color:#666;">Pour continuer, vous pouvez augmenter ou supprimer les limites de la partie.</p>
 
-                            <label style="display:block; margin-bottom:15px;">
-                                Nouvelle Limite de Score
-                                <input type="number" id="update-score-limit" value="${currentTarget}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-                                    <small style="color:#999;">Laissez vide pour illimité</small>
-                            </label>
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+                                <label for="update-score-limit" style="font-weight:bold; width:60%;">Limite de score</label>
+                                <input type="number" id="update-score-limit" value="${currentTarget}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+                            </div>
 
-                            <label style="display:block; margin-bottom:20px;">
-                                Nouveau Nombre de Tours
-                                <input type="number" id="update-round-limit" value="${currentRounds}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-                                    <small style="color:#999;">Laissez vide pour illimité</small>
-                            </label>
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+                                <label for="update-round-limit" style="font-weight:bold; width:60%;">Limite de tours</label>
+                                <input type="number" id="update-round-limit" value="${currentRounds}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+                            </div>
+                        </div>
 
-                            <button onclick="window.app.submitUpdateLimits()" style="width:100%">Valider et Continuer</button>
+                        <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
+                            <button onclick="window.app.submitUpdateLimits()" style="width:100%; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Valider et Continuer</button>
                         </div>
                         `;
 };
@@ -624,7 +578,7 @@ export const AddIngamePlayerView = (store) => {
 
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Ajouter un joueur</h1>
                         </header>
                         <div class="grid">
@@ -657,7 +611,7 @@ export const RemoveIngamePlayerView = (store) => {
 
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Supprimer un joueur</h1>
                         </header>
                         <div class="card">
@@ -701,18 +655,21 @@ export const ReorderIngamePlayersView = (store) => {
 
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.cancelReorderIngame()" style="padding: 8px 12px; margin-right: 10px;">Annuler</button>
+                            <button onclick="window.app.cancelReorderIngame()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Ordre des joueurs</h1>
-                            <button onclick="window.app.saveReorderIngame()" style="padding: 8px 12px; margin-left: auto; background:var(--primary-color); color:white; border:none;">Sauvegarder</button>
                         </header>
-                        <div class="card">
+                        <div class="card" style="margin-bottom:80px;"> <!-- Margin bottom for fixed footer button space -->
                             <p style="margin-bottom:10px; color:#666; font-size:0.9em;">Glissez pour réorganiser.</p>
                             <div id="reorder-ingame-list"></div>
+                        </div>
+                        
+                        <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
+                            <button onclick="window.app.saveReorderIngame()" style="width:100%; padding: 15px; background:var(--primary-color); color:white; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Enregistrer l'ordre</button>
                         </div>
 
                         <!-- Script to init UI -->
                         <script>
-        setTimeout(() => window.app.updateReorderIngameUI(), 50);
+                            setTimeout(() => window.app.updateReorderIngameUI(), 50);
                         </script>
                         `;
 };
@@ -726,7 +683,7 @@ export const ConfirmRemoveIngamePlayerView = (store, playerId) => {
 
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Confirmation</h1>
                         </header>
                         <div class="card" style="text-align:center; padding: 40px 20px;">
@@ -743,7 +700,7 @@ export const ConfirmRemoveIngamePlayerView = (store, playerId) => {
 export const ConfirmEndGameView = (store) => {
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Fin de partie</h1>
                         </header>
                         <div class="card" style="text-align:center; padding: 40px 20px;">
@@ -760,7 +717,7 @@ export const ConfirmEndGameView = (store) => {
 export const ConfirmCancelGameView = (store) => {
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Annuler la partie</h1>
                         </header>
                         <div class="card" style="text-align:center; padding: 40px 20px;">
@@ -836,7 +793,7 @@ export const GameOverView = (store) => {
 
 export const AboutView = () => `
                     <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                         <h1>A propos</h1>
                     </header>
                     <div class="card">
@@ -861,7 +818,7 @@ export const StatisticsView = (store) => {
 
     return `
                     <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                         <h1>Statistiques</h1>
                     </header>
 
