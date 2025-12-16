@@ -111,6 +111,11 @@ button:active {
     opacity: 0.8;
 }
 
+input,
+select {
+    font-size: 1.1rem !important;
+}
+
 .card {
     background: var(--surface-color);
     margin-bottom: 16px;

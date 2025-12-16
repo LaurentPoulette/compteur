@@ -84,9 +84,9 @@ export const PlayerOrderView = (store, gameId) => {
     return `
         <header style="display:flex; align-items:center; margin-bottom: 20px;">
              <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-            <h1>Ordre</h1>
+            <h1>Ordre des joueurs</h1>
         </header>
-        <p class="subtitle">Définissez l'ordre de tour des joueurs</p>
+        <p class="subtitle"></p>
         
         <div id="selected-players-list" style="margin-bottom:80px;">
              <!-- Populated by window.app.updateSelectedPlayersUI() -->
@@ -157,16 +157,15 @@ export const ActiveGameView = (store) => {
 
             return `
                             <td class="leaderboard-cell">
-                                 <div class="leaderboard-card ${themeClass}">
-                                    <span class="leaderboard-rank">
-                                        ${i + 1} 
-                                        ${p.photo ? `<img src="${p.photo}" style="width:20px; height:20px; border-radius:50%; object-fit:cover; vertical-align:middle;">` : p.avatar} 
-                                        ${p.score}
-                                    </span>
-                                    <br>
-                                    <span class="name-full">${p.name}</span>
-                                    <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
-                                    
+                                 <div class="leaderboard-card ${themeClass}" style="flex-direction:column; justify-content:center;">
+                                    <div style="margin-bottom:2px; font-weight:bold; font-size:0.9em;">
+                                        <span class="leaderboard-rank">${i + 1}</span> : ${p.score}
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:4px;">
+                                        ${p.photo ? `<img src="${p.photo}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:0.9em;">${p.avatar}</span>`} 
+                                        <span class="name-full" style="font-size:0.85em;">${p.name}</span>
+                                        <span class="name-initial" style="font-size:0.85em;">${p.name.charAt(0).toUpperCase()}</span>
+                                    </div>
                                 </div>
                             </td>
                      `}).join('')}
@@ -218,10 +217,10 @@ export const ActiveGameView = (store) => {
                             <th class="history-header">#</th>
                             ${tablePlayers.map(p => `
                                 <th class="history-header">
-                                    <div style="height:42px; display:flex; align-items:center; justify-content:center;">
-                                        ${p.photo ? `<img src="${p.photo}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:1.8em;">${p.avatar}</span>`}
+                                    <div style="height:34px; display:flex; align-items:center; justify-content:center;">
+                                        ${p.photo ? `<img src="${p.photo}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:1.5em;">${p.avatar}</span>`}
                                     </div>
-                                    <div style="font-size:0.9em;">
+                                    <div style="font-size:0.8em;">
                                         <span class="name-full">${p.name}</span>
                                         <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
                                     </div>
@@ -292,33 +291,33 @@ export const CreateGameView = () => `
     </header>
     <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-name" style="font-weight:bold; width: 60%;">Nom du jeu</label>
-            <input type="text" id="new-game-name" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-name" style="font-weight:bold; width: 50%;">Nom du jeu</label>
+            <input type="text" id="new-game-name" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
 
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-type" style="font-weight:bold; width: 60%;">Vainqueur</label>
-            <select id="new-game-type" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right; background:white;">
-                <option value="highest">Score le plus élevé</option>
-                <option value="lowest">Score le moins élevé</option>
+            <label for="new-game-type" style="font-weight:bold; width: 50%;">Score vainqueur</label>
+            <select id="new-game-type" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right; background:white;">
+                <option value="highest">Le plus grand</option>
+                <option value="lowest">Le plus petit</option>
             </select>
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-target" style="font-weight:bold; width:60%;">Limite de score <!--(opt)--></label>
-            <input type="number" id="new-game-target" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-target" style="font-weight:bold; width:50%;">Limite de score <!--(opt)--></label>
+            <input type="number" id="new-game-target" placeholder="Illimité" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-rounds" style="font-weight:bold; width:60%;">Limite de tours <!--(opt)--></label>
-            <input type="number" id="new-game-rounds" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-rounds" style="font-weight:bold; width:50%;">Limite de tours <!--(opt)--></label>
+            <input type="number" id="new-game-rounds" placeholder="Illimité" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="new-game-fixed-score-value" style="font-weight:bold; width:60%;">Total score fixe par tour ?</label>
-            <input type="number" id="new-game-fixed-score-value" placeholder="Optionnel" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="new-game-fixed-score-value" style="font-weight:bold; width:50%;">Score fixe par tour ?</label>
+            <input type="number" id="new-game-fixed-score-value" placeholder="Optionnel" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
 
@@ -340,33 +339,33 @@ export const EditGameView = (store, gameId) => {
         <input type="hidden" id="edit-game-id" value="${game.id}">
         
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-name" style="font-weight:bold; width: 60%;">Nom du jeu</label>
-            <input type="text" id="edit-game-name" value="${game.name}" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-name" style="font-weight:bold; width: 50%;">Nom du jeu</label>
+            <input type="text" id="edit-game-name" value="${game.name}" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
         
 
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-type" style="font-weight:bold; width: 60%;">Vainqueur</label>
-            <select id="edit-game-type" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; background:white; text-align:right;">
-                <option value="highest" ${game.winCondition === 'highest' ? 'selected' : ''}>Score le plus élevé</option>
-                <option value="lowest" ${game.winCondition === 'lowest' ? 'selected' : ''}>Score le moins élevé</option>
+            <label for="edit-game-type" style="font-weight:bold; width: 50%;">Vainqueur</label>
+            <select id="edit-game-type" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; background:white; text-align:right;">
+                <option value="highest" ${game.winCondition === 'highest' ? 'selected' : ''}>Le plus grand</option>
+                <option value="lowest" ${game.winCondition === 'lowest' ? 'selected' : ''}>Le plus petit</option>
             </select>
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-target" style="font-weight:bold; width: 60%;">Limite de score <!--(opt)--></label>
-            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-target" style="font-weight:bold; width: 50%;">Limite de score <!--(opt)--></label>
+            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-rounds" style="font-weight:bold; width: 60%;">Limite de tours <!--(opt)--></label>
-            <input type="number" id="edit-game-rounds" value="${game.rounds || ''}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-rounds" style="font-weight:bold; width: 50%;">Limite de tours <!--(opt)--></label>
+            <input type="number" id="edit-game-rounds" value="${game.rounds || ''}" placeholder="Illimité" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
-            <label for="edit-game-fixed-score-value" style="font-weight:bold; width:60%;">Score total fixe par tour</label>
-            <input type="number" id="edit-game-fixed-score-value" value="${game.fixedRoundScore || ''}" placeholder="Optionnel" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            <label for="edit-game-fixed-score-value" style="font-weight:bold; width:50%;">Score total fixe par tour</label>
+            <input type="number" id="edit-game-fixed-score-value" value="${game.fixedRoundScore || ''}" placeholder="Optionnel" style="width:45%; padding:15px; border:1px solid #ccc; border-radius:5px; text-align:right;">
         </div>
 
 
@@ -510,10 +509,9 @@ export const GameSetupView = (store, gameId) => {
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-                            <h1>Configuration</h1>
+                            <h1>Fin de partie</h1>
                         </header>
                         <div class="card" style="margin-bottom: 80px;">
-                            <h2 style="margin-bottom:15px; color:var(--primary-color);">${game.name}</h2>
                             <p style="margin-bottom:20px;">Définissez les conditions de fin de partie.</p>
 
                             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
@@ -545,7 +543,7 @@ export const UpdateLimitsView = (store) => {
     return `
                         <header style="display:flex; align-items:center; margin-bottom: 20px;">
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-                            <h1>Configuration</h1>
+                            <h1>Fin de partie</h1>
                         </header>
                         <div class="card" style="margin-bottom: 80px;">
                             <p style="margin-bottom:20px; color:#666;">Pour continuer, vous pouvez augmenter ou supprimer les limites de la partie.</p>

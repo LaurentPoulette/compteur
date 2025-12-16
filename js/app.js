@@ -689,36 +689,32 @@ class App {
         const sorted = [...players].sort((a, b) => isLowestWin ? a.score - b.score : b.score - a.score);
 
         const html = `
-            <table class="leaderboard-table" style="width:100%; font-size:0.9em;">
+            <table class="leaderboard-table">
                 <tbody>
                     <tr>
-                 ${sorted.map((p, i) => {
-            let bgColor = '#e0f2fe'; // Default Blue-ish
-            let borderColor = '#3b82f6';
+                        ${sorted.map((p, i) => {
+            let themeClass = 'theme-default';
 
             if (i === 0) {
-                bgColor = '#dcfce7'; // Green-ish
-                borderColor = '#22c55e';
+                themeClass = 'theme-first';
             } else if (i === sorted.length - 1 && sorted.length > 1) {
-                bgColor = '#fee2e2'; // Red-ish
-                borderColor = '#ef4444';
+                themeClass = 'theme-last';
             }
 
             return `
-                        <td style="min-width:140px; padding:5px; border-right:1px solid #eee;">
-                             <div style="background-color:${bgColor}; border:1px solid ${borderColor}; border-radius:8px; padding:5px 8px; display:flex; align-items:center; gap:8px;">
-                                <span style="font-weight:bold; color:${borderColor}; opacity:0.8;">#${i + 1}</span>
-                                <div style="display:flex; align-items:center; justify-content:center; height:38px; width:38px;">
-                                    ${p.photo ? `<img src="${p.photo}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">` : `<div style="font-size:1.5em;">${p.avatar}</div>`}
+                            <td class="leaderboard-cell">
+                                 <div class="leaderboard-card ${themeClass}" style="flex-direction:column; justify-content:center;">
+                                    <div style="margin-bottom:2px; font-weight:bold; font-size:0.9em;">
+                                        <span class="leaderboard-rank">${i + 1}</span> : ${p.score}
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:4px;">
+                                        ${p.photo ? `<img src="${p.photo}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:0.9em;">${p.avatar}</span>`} 
+                                        <span class="name-full" style="font-size:0.85em;">${p.name}</span>
+                                        <span class="name-initial" style="font-size:0.85em;">${p.name.charAt(0).toUpperCase()}</span>
+                                    </div>
                                 </div>
-                                <div style="font-weight:600; font-size:1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1;">
-                                    <span class="name-full">${p.name}</span>
-                                    <span class="name-initial">${p.name.charAt(0).toUpperCase()}</span>
-                                </div>
-                                <span style="font-weight:bold; font-size:1.25em;">${p.score}</span>
-                            </div>
-                        </td>
-                 `}).join('')}
+                            </td>
+                     `}).join('')}
                     </tr>
                 </tbody>
             </table>
