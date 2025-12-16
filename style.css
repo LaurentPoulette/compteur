@@ -236,11 +236,11 @@ select {
 
 /* Refactored Table Styles */
 .history-table .history-header {
-    padding: 10px;
+    padding: 5px;
 }
 
 .history-table .history-header-check {
-    padding: 10px;
+    padding: 5px;
     color: #666;
 }
 
@@ -473,4 +473,29 @@ select {
     display: flex;
     align-items: center;
     padding: 10px;
+}
+
+
+td:has(input:focus) {
+    background-color: lightgreen !important;
+    ;
+}
+
+td input {
+    background-color: transparent !important;
+    border: 0px solid black;
+    outline: none !important;
+}
+
+td input:focus {
+    background-color: lightgreen !important;
+
+    border: 0px solid black;
+    outline: none !important;
+}
+
+/* New Round Highlight */
+.history-row-new {
+    background-color: #ffff00 !important;
+    /* Bright yellow */
 }

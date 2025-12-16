@@ -159,7 +159,7 @@ export const ActiveGameView = (store) => {
                             <td class="leaderboard-cell">
                                  <div class="leaderboard-card ${themeClass}" style="flex-direction:column; justify-content:center;">
                                     <div style="margin-bottom:2px; font-weight:bold; font-size:0.9em;">
-                                        <span class="leaderboard-rank">${i + 1}</span> : ${p.score}
+                                        <span class="leaderboard-rank">${i + 1}</span>:${p.score}
                                     </div>
                                     <div style="display:flex; align-items:center; gap:4px;">
                                         ${p.photo ? `<img src="${p.photo}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:0.9em;">${p.avatar}</span>`} 
@@ -226,21 +226,28 @@ export const ActiveGameView = (store) => {
                                     </div>
                                 </th>
                             `).join('')}
-                            ${hasFixedScore ? '<th class="history-header-check">Check</th>' : ''}
                         </tr>
                     </thead>
-                    <tbody>
-                        ${session.history.map((round, roundIndex) => {
-        let roundSum = 0;
-        tablePlayers.forEach(p => {
-            const val = round[p.id];
-            if (val !== undefined && val !== "") roundSum += parseInt(val);
-        });
-        const checkValue = hasFixedScore ? (game.fixedRoundScore - roundSum) : null;
+    <tbody>
+        ${session.history.map((r, i) => ({ round: r, roundIndex: i }))
+            .reverse()
+            .map(({ round, roundIndex }, displayIndex) => {
+                let roundSum = 0;
+                tablePlayers.forEach(p => {
+                    const val = round[p.id];
+                    if (val !== undefined && val !== "") roundSum += parseInt(val);
+                });
+                const checkValue = hasFixedScore ? (game.fixedRoundScore - roundSum) : null;
+                const rowClass = displayIndex === 0 ? 'history-row-new' : '';
 
-        return `
-                            <tr>
-                                <td class="history-cell-round">${roundIndex + 1}</td>
+                return `
+                            <tr class="${rowClass}">
+                                <td class="history-cell-round" id="round-cell-${roundIndex}">
+                                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                        <span>${roundIndex + 1}</span>
+                                        ${hasFixedScore ? `<span id="check-val-${roundIndex}" style="font-size:0.8em; font-weight:bold; color:${checkValue === 0 ? 'var(--primary-color)' : '#ef4444'}">${checkValue === 0 ? 'OK' : checkValue}</span>` : '<br>'}
+                                    </div>
+                                </td>
                                 ${tablePlayers.map(p => `
                                     <td class="history-cell-score">
                                         <input type="number" 
@@ -251,44 +258,43 @@ export const ActiveGameView = (store) => {
                                                placeholder="-">
                                     </td>
                                 `).join('')}
-                                ${hasFixedScore ? `<td id="check-cell-${roundIndex}" class="history-cell-check ${checkValue === 0 ? 'text-primary' : 'text-danger'}">${checkValue === 0 ? 'OK' : checkValue}</td>` : ''}
                             </tr>
                         `}).join('')}
-                    </tbody>
-                </table>
-            </div>
+    </tbody>
+                </table >
+            </div >
 
-        </div>
+        </div >
 
-        <div id="sticky-leaderboard">
-            <div style="padding:10px 10px 0 10px;">
-                <div id="game-over-banner-bottom" style="display:${gameOverReason ? 'block' : 'none'};">
-                        <div style="background-color:var(--primary-color); color:white; padding:15px; border-radius:8px; margin-bottom:10px; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <div style="font-size:1.2em; font-weight:bold;">🏁 Partie Terminée</div>
-                            <div style="opacity:0.9; margin-bottom:10px;">${gameOverReason}</div>
-                            <div style="display:flex; justify-content:center; gap:10px;">
-                                <button onclick="window.app.navigateUpdateLimits()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.5); color:white; padding:8px 12px; font-size:0.9rem; border-radius:4px; flex:1;">Continuer</button>
-                                <button onclick="window.app.navigateEndGame()" style="background:white; color:var(--primary-color); border:none; padding:8px 12px; font-size:0.9rem; border-radius:4px; font-weight:bold; flex:1;">Terminer</button>
-                            </div>
-                        </div>
+    <div id="sticky-leaderboard">
+        <div style="padding:10px 10px 0 10px;">
+            <div id="game-over-banner-bottom" style="display:${gameOverReason ? 'block' : 'none'};">
+                <div style="background-color:var(--primary-color); color:white; padding:15px; border-radius:8px; margin-bottom:10px; text-align:center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="font-size:1.2em; font-weight:bold;">🏁 Partie Terminée</div>
+                    <div style="opacity:0.9; margin-bottom:10px;">${gameOverReason}</div>
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                        <button onclick="window.app.navigateUpdateLimits()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.5); color:white; padding:8px 12px; font-size:0.9rem; border-radius:4px; flex:1;">Continuer</button>
+                        <button onclick="window.app.navigateEndGame()" style="background:white; color:var(--primary-color); border:none; padding:8px 12px; font-size:0.9rem; border-radius:4px; font-weight:bold; flex:1;">Terminer</button>
+                    </div>
                 </div>
-                <button id="btn-new-round" onclick="window.app.addRound()" style="width:100%; padding: 12px; font-size: 1.1rem; margin-bottom:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display:${gameOverReason ? 'none' : 'block'};">+ Nouveau Tour</button>
             </div>
-            
-            <div id="leaderboard-content" class="sticky-leaderboard-content">
-                ${getLeaderboardHTML()}
-            </div>
+            <button id="btn-new-round" onclick="window.app.addRound()" style="width:100%; padding: 12px; font-size: 1.1rem; margin-bottom:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display:${gameOverReason ? 'none' : 'block'};">+ Nouveau Tour</button>
         </div>
-            </div>
+
+        <div id="leaderboard-content" class="sticky-leaderboard-content">
+            ${getLeaderboardHTML()}
         </div>
     </div>
+            </div >
+        </div >
+    </div >
     `;
 };
 export const CreateGameView = () => `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Nouveau Jeu</h1>
-    </header>
+    </header >
     <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
             <label for="new-game-name" style="font-weight:bold; width: 50%;">Nom du jeu</label>
@@ -331,10 +337,10 @@ export const EditGameView = (store, gameId) => {
     if (!game) return '<div>Jeu introuvable</div>';
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Modifier Jeu</h1>
-    </header>
+    </header >
     <div class="card">
         <input type="hidden" id="edit-game-id" value="${game.id}">
         
@@ -384,10 +390,10 @@ export const ConfirmDeleteGameView = (store, gameId) => {
     if (!game) return '<div>Jeu introuvable</div>';
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Supprimer Jeu</h1>
-    </header>
+    </header >
     <div class="card" style="text-align:center; padding: 40px 20px;">
         <div style="font-size:4em; margin-bottom:10px; color:${game.color};">🎲</div>
         <h2 style="margin-bottom:10px;">Supprimer ${game.name} ?</h2>
@@ -400,10 +406,10 @@ export const ConfirmDeleteGameView = (store, gameId) => {
 };
 
 export const CreatePlayerView = () => `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Nouveau Joueur</h1>
-    </header>
+    </header >
     <div class="card">
         <label style="display:block; margin-bottom:20px;">
             Nom du joueur
@@ -660,7 +666,7 @@ export const ReorderIngamePlayersView = (store) => {
                             <p style="margin-bottom:10px; color:#666; font-size:0.9em;">Glissez pour réorganiser.</p>
                             <div id="reorder-ingame-list"></div>
                         </div>
-                        
+
                         <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
                             <button onclick="window.app.saveReorderIngame()" style="width:100%; padding: 15px; background:var(--primary-color); color:white; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Enregistrer l'ordre</button>
                         </div>

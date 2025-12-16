@@ -664,11 +664,11 @@ class App {
         const session = this.store.restoreSession();
         const game = this.store.getGames().find(g => g.id === session.gameId);
 
-        // Update Check Column if exists
-        const checkCell = document.getElementById(`check-cell-${roundIndex}`);
+        // Update Check Value in Round Column if exists
+        const checkValSpan = document.getElementById(`check-val-${roundIndex}`);
         const hasFixedScore = game && (game.fixedRoundScore !== null && game.fixedRoundScore !== undefined && game.fixedRoundScore !== 0);
 
-        if (checkCell && hasFixedScore) {
+        if (checkValSpan && hasFixedScore) {
             const roundData = session.history[roundIndex];
             let roundSum = 0;
             session.players.forEach(p => {
@@ -676,8 +676,8 @@ class App {
                 if (val !== undefined && val !== "") roundSum += parseInt(val);
             });
             const diff = game.fixedRoundScore - roundSum;
-            checkCell.textContent = diff === 0 ? 'OK' : diff;
-            checkCell.style.color = diff === 0 ? 'var(--primary-color)' : '#ef4444';
+            checkValSpan.textContent = diff === 0 ? 'OK' : diff;
+            checkValSpan.style.color = diff === 0 ? 'var(--primary-color)' : '#ef4444';
         }
 
         const isLowestWin = game && game.winCondition === 'lowest';
@@ -705,7 +705,7 @@ class App {
                             <td class="leaderboard-cell">
                                  <div class="leaderboard-card ${themeClass}" style="flex-direction:column; justify-content:center;">
                                     <div style="margin-bottom:2px; font-weight:bold; font-size:0.9em;">
-                                        <span class="leaderboard-rank">${i + 1}</span> : ${p.score}
+                                        <span class="leaderboard-rank">${i + 1}</span>:${p.score}
                                     </div>
                                     <div style="display:flex; align-items:center; gap:4px;">
                                         ${p.photo ? `<img src="${p.photo}" style="width:16px; height:16px; border-radius:50%; object-fit:cover;">` : `<span style="font-size:0.9em;">${p.avatar}</span>`} 
