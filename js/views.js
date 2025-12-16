@@ -16,6 +16,13 @@ export const HomeView = (store) => {
         </div>
 
         <div class="grid" style="padding-bottom:100px;">
+            <!-- New Game Card -->
+            <div class="card" onclick="window.app.router.navigate('createGame')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:80px; border: 2px dashed #ccc; background:transparent;">
+                 <div style="text-align:center; color:#888;">
+                    <span style="font-size:2em;">+</span><br>Nouveau
+                 </div>
+            </div>
+
             ${games.map(g => `
                 <div class="card" onclick="window.app.selectGame('${g.id}')" style="border-left: 5px solid ${g.color || '#ccc'}; min-height:80px; display:flex; align-items:center; justify-content: space-between; padding-right: 10px;">
                     <div style="display:flex; align-items:center;">
@@ -28,10 +35,6 @@ export const HomeView = (store) => {
                 </div>
             `).join('')}
         </div>
-
-        <div style="position:fixed; bottom:0; left:0; width:100%; padding:20px; background: linear-gradient(0deg, var(--background-color) 60%, transparent); z-index:90; text-align:center; pointer-events:none;">
-            <button onclick="window.app.router.navigate('createGame')" style="pointer-events:auto; width:100%; padding: 15px; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border-radius: 12px;">+ Nouveau Jeu</button>
-        </div>
     `;
 };
 
@@ -41,10 +44,16 @@ export const PlayerSelectView = (store, gameId) => {
         <header style="display:flex; align-items:center; margin-bottom: 20px;">
             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
             <h1>Joueurs</h1>
-            <button onclick="window.app.router.navigate('createPlayer')" id="btn-add-player" style="margin-left:auto">+</button>
         </header>
         <p class="subtitle">Sélectionnez les joueurs pour la partie</p>
         <div class="grid" id="player-grid">
+            <!-- New Player Card -->
+            <div class="card" onclick="window.app.router.navigate('createPlayer')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:80px; border: 2px dashed #ccc; background:transparent;">
+                 <div style="text-align:center; color:#888;">
+                    <span style="font-size:2em;">+</span><br>Nouveau
+                 </div>
+            </div>
+
             ${players.map(p => {
         const isSelected = window.app.selectedPlayers.includes(p.id);
         return `
@@ -58,10 +67,10 @@ export const PlayerSelectView = (store, gameId) => {
             `;
     }).join('')}
         </div>
-        </div>
+        </div >
         
         <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
-            <p class="subtitle" style="margin-bottom:10px;">Ordre du tour (Joueurs sélectionnés)</p>
+            <p class="subtitle" style="margin-bottom:10px;">Ordre des joueurs</p>
             <div id="selected-players-list">
                 <!-- Populated by window.app.updateSelectedPlayersUI() -->
             </div>
@@ -78,12 +87,12 @@ export const PlayerSelectView = (store, gameId) => {
         <style>
             .player-card.selected { border: 2px solid var(--primary-color); background-color: #e0f2fe; }
         </style>
-    `;
+`;
 };
 
 export const ActiveGameView = (store) => {
     const session = store.restoreSession();
-    if (!session) return `<div class="card">Erreur: Pas de session active.</div>`;
+    if (!session) return `< div class="card" > Erreur: Pas de session active.</div > `;
 
     const game = store.getGames().find(g => g.id === session.gameId);
     const isLowestWin = game && game.winCondition === 'lowest';
@@ -122,10 +131,10 @@ export const ActiveGameView = (store) => {
     const getLeaderboardHTML = () => {
         const sorted = [...players].sort((a, b) => isLowestWin ? a.score - b.score : b.score - a.score);
         return `
-            <table class="leaderboard-table">
-                <tbody>
-                    <tr>
-                 ${sorted.map((p, i) => {
+    < table class="leaderboard-table" >
+        <tbody>
+            <tr>
+                ${sorted.map((p, i) => {
             let themeClass = 'theme-default';
 
             if (i === 0) {
@@ -149,14 +158,14 @@ export const ActiveGameView = (store) => {
                                 </div>
                             </td>
                      `}).join('')}
-                    </tr>
-                </tbody>
-            </table>
-        `;
+            </tr>
+        </tbody>
+            </table >
+    `;
     };
 
     return `
-        <div style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
+    < div style = "display:flex; flex-direction:column; height:100%; overflow:hidden;" >
         <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; z-index:1001; position:relative; flex-shrink:0;">
 
             <div style="display:flex; align-items:center; gap:10px; overflow:hidden; flex:1;">
@@ -173,7 +182,7 @@ export const ActiveGameView = (store) => {
 
         <div id="game-over-banner-top" style="display:none;"></div>
 
-        <!-- Menu dropdown -->
+        <!--Menu dropdown-- >
         <div id="game-menu" class="menu-overlay" onclick="if(event.target === this) this.classList.remove('active')">
             <div class="menu-content">
                 <button class="menu-item" onclick="window.app.navigateAddPlayerInGame()">Ajouter un joueur</button>
@@ -256,8 +265,8 @@ export const ActiveGameView = (store) => {
                 ${getLeaderboardHTML()}
             </div>
         </div>
-        </div>
-    </div>
+        </div >
+    </div >
     `;
 };
 export const CreateGameView = () => `
@@ -266,61 +275,69 @@ export const CreateGameView = () => `
         <h1>Nouveau Jeu</h1>
     </header>
     <div class="card">
-        <label style="display:block; margin-bottom:10px;">
-            Nom du jeu
-            <input type="text" id="new-game-name" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
-        
-        <label style="display:block; margin-bottom:10px;">
-            Icône
-             <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="new-game-name" style="font-weight:bold; width: 40%;">Nom du jeu</label>
+            <input type="text" id="new-game-name" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
+
+        <div style="display:block; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <span style="font-weight:bold; display:block; margin-bottom:5px;">Icône</span>
+            <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
                 ${['🎲', '&nbsp;🃑&nbsp;', '♟️', '🎯', '🎳'].map(emoji => `
                     <div onclick="document.querySelectorAll('.game-icon-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('new-game-icon').value='${emoji}'" class="game-icon-opt ${emoji === '🎲' ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
                 `).join('')}
             </div>
             <input type="hidden" id="new-game-icon" value="🎲">
-        </label>
+        </div>
 
-        <label style="display:block; margin-bottom:10px;">
-            Vainqueur
-            <select id="new-game-type" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="new-game-type" style="font-weight:bold; width: 40%;">Vainqueur</label>
+            <select id="new-game-type" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right; background:white;">
                 <option value="highest">Score le plus élevé</option>
                 <option value="lowest">Score le moins élevé</option>
             </select>
-        </label>
-
-        <label style="display:block; margin-bottom:10px;">
-            Score Cible (optionnel)
-            <input type="number" id="new-game-target" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
-
-        <label style="display:block; margin-bottom:10px;">
-            Nombre de tours (optionnel)
-            <input type="number" id="new-game-rounds" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
-
-        <label style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
-            <input type="checkbox" id="new-game-fixed-score-check" onchange="document.getElementById('fixed-score-container').style.display = this.checked ? 'block' : 'none'">
-            Score total par tour fixe ?
-        </label>
-
-        <div id="fixed-score-container" style="display:none; margin-bottom:10px;">
-            <label style="display:block;">
-                Total des points par tour
-                <input type="number" id="new-game-fixed-score-value" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-            </label>
         </div>
 
-        <label style="display:block; margin-bottom:20px;">
-             Couleur
-             <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; margin-top:5px; margin-bottom:10px;">
-                ${['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b', '#000000'].map(c => `
-                    <div onclick="document.getElementById('new-game-color').value='${c}'" style="background-color:${c}; height:30px; border-radius:5px; cursor:pointer; border:1px solid #ccc;"></div>
-                `).join('')}
-             </div>
-             <p style="font-size:0.8em; margin-bottom:5px;">Ou couleur personnalisée :</p>
-            <input type="color" id="new-game-color" value="#3b82f6" style="width:100%; height:40px; border:none;">
-        </label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="new-game-target" style="font-weight:bold; width:40%;">Score Cible <!--(opt)--></label>
+            <input type="number" id="new-game-target" placeholder="Illimité" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="new-game-rounds" style="font-weight:bold; width:40%;">Nombre de tours <!--(opt)--></label>
+            <input type="number" id="new-game-rounds" placeholder="Illimité" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
+
+        <div style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
+            <input type="checkbox" id="new-game-fixed-score-check" onchange="document.getElementById('fixed-score-container').style.display = this.checked ? 'block' : 'none'">
+            <label for="new-game-fixed-score-check">Score total par tour fixe ?</label>
+        </div>
+
+        <div id="fixed-score-container" style="display:none; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <label for="new-game-fixed-score-value" style="font-weight:bold;">Total pts / tour</label>
+                <input type="number" id="new-game-fixed-score-value" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+             <span style="font-weight:bold;">Couleur</span>
+             <select id="new-game-color" style="width:80px; height:40px; border:1px solid #ccc; border-radius:5px; appearance:none; cursor:pointer;" onchange="this.style.backgroundColor = this.value; this.style.color = this.value;">
+                ${['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b', '#000000', '#84cc16', '#10b981', '#14b8a6', '#4f46e5'].map(c =>
+    `<option value="${c}" style="background-color:${c}; color:${c};" ${c === '#3b82f6' ? 'selected' : ''}>${c}</option>`
+).join('')}
+             </select>
+             <!-- Init style for Select -->
+             <script>
+                setTimeout(() => {
+                    const sel = document.getElementById('new-game-color');
+                    if(sel) {
+                         sel.style.backgroundColor = sel.value;
+                         sel.style.color = sel.value;
+                    }
+                }, 0);
+             </script>
+        </div>
 
         <button onclick="window.app.submitCreateGame()" style="width:100%">Créer</button>
     </div>
@@ -337,61 +354,70 @@ export const EditGameView = (store, gameId) => {
     </header>
     <div class="card">
         <input type="hidden" id="edit-game-id" value="${game.id}">
-        <label style="display:block; margin-bottom:10px;">
-            Nom du jeu
-            <input type="text" id="edit-game-name" value="${game.name}" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
         
-        <label style="display:block; margin-bottom:10px;">
-            Icône
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="edit-game-name" style="font-weight:bold; width: 40%;">Nom du jeu</label>
+            <input type="text" id="edit-game-name" value="${game.name}" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
+        
+        <div style="display:block; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <span style="font-weight:bold; display:block; margin-bottom:5px;">Icône</span>
              <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-top:5px;">
                 ${['🎲', '&nbsp;🃑&nbsp;', '♟️', '🎯', '🎳'].map(emoji => `
                     <div onclick="document.querySelectorAll('.game-icon-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('edit-game-icon').value='${emoji}'" class="game-icon-opt ${game.icon === emoji ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
                 `).join('')}
             </div>
             <input type="hidden" id="edit-game-icon" value="${game.icon || '🎲'}">
-        </label>
+        </div>
 
-        <label style="display:block; margin-bottom:10px;">
-            Vainqueur
-            <select id="edit-game-type" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="edit-game-type" style="font-weight:bold; width: 40%;">Vainqueur</label>
+            <select id="edit-game-type" style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px; background:white; text-align:right;">
                 <option value="highest" ${game.winCondition === 'highest' ? 'selected' : ''}>Score le plus élevé</option>
                 <option value="lowest" ${game.winCondition === 'lowest' ? 'selected' : ''}>Score le moins élevé</option>
             </select>
-        </label>
-
-        <label style="display:block; margin-bottom:10px;">
-            Score Cible (optionnel)
-            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
-
-        <label style="display:block; margin-bottom:10px;">
-            Nombre de tours (optionnel)
-            <input type="number" id="edit-game-rounds" value="${game.rounds || ''}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
-
-        <label style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
-            <input type="checkbox" id="edit-game-fixed-score-check" ${game.fixedRoundScore ? 'checked' : ''} onchange="document.getElementById('edit-fixed-score-container').style.display = this.checked ? 'block' : 'none'">
-            Score total par tour fixe ?
-        </label>
-
-        <div id="edit-fixed-score-container" style="display:${game.fixedRoundScore ? 'block' : 'none'}; margin-bottom:10px;">
-            <label style="display:block;">
-                Total des points par tour
-                <input type="number" id="edit-game-fixed-score-value" value="${game.fixedRoundScore || ''}" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-            </label>
         </div>
 
-        <label style="display:block; margin-bottom:20px;">
-             Couleur
-             <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; margin-top:5px; margin-bottom:10px;">
-                ${['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b', '#000000'].map(c => `
-                    <div onclick="document.getElementById('edit-game-color').value='${c}'" style="background-color:${c}; height:30px; border-radius:5px; cursor:pointer; border:1px solid #ccc;"></div>
-                `).join('')}
-             </div>
-             <p style="font-size:0.8em; margin-bottom:5px;">Ou couleur personnalisée :</p>
-            <input type="color" id="edit-game-color" value="${game.color || '#3b82f6'}" style="width:100%; height:40px; border:none;">
-        </label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="edit-game-target" style="font-weight:bold;">Score Cible <!--(opt)--></label>
+            <input type="number" id="edit-game-target" value="${game.target || ''}" placeholder="Illimité" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <label for="edit-game-rounds" style="font-weight:bold;">Nombre de tours <!--(opt)--></label>
+            <input type="number" id="edit-game-rounds" value="${game.rounds || ''}" placeholder="Illimité" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
+
+        <div style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
+            <input type="checkbox" id="edit-game-fixed-score-check" ${game.fixedRoundScore ? 'checked' : ''} onchange="document.getElementById('edit-fixed-score-container').style.display = this.checked ? 'block' : 'none'">
+            <label for="edit-game-fixed-score-check">Score total par tour fixe ?</label>
+        </div>
+
+        <div id="edit-fixed-score-container" style="display:${game.fixedRoundScore ? 'block' : 'none'}; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <label for="edit-game-fixed-score-value" style="font-weight:bold;">Total pts / tour</label>
+                <input type="number" id="edit-game-fixed-score-value" value="${game.fixedRoundScore || ''}" style="width:40%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+             <span style="font-weight:bold;">Couleur</span>
+             <select id="edit-game-color-output" style="width:80px; height:40px; border:1px solid #ccc; border-radius:5px; appearance:none; cursor:pointer;" onchange="this.style.backgroundColor = this.value; this.style.color = this.value;">
+                ${['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#f43f5e', '#64748b', '#000000', '#84cc16', '#10b981', '#14b8a6', '#4f46e5'].map(c =>
+        `<option value="${c}" style="background-color:${c}; color:${c};" ${game.color === c ? 'selected' : ''}>${c}</option>`
+    ).join('')}
+             </select>
+             <!-- Init style for Select -->
+             <script>
+                setTimeout(() => {
+                    const sel = document.getElementById('edit-game-color-output');
+                    if(sel) {
+                        sel.style.backgroundColor = sel.value;
+                        sel.style.color = sel.value;
+                    }
+                }, 0);
+             </script>
+        </div>
 
         <button onclick="window.app.submitEditGame()" style="width:100%; margin-bottom:15px;">Enregistrer</button>
         <button onclick="window.app.navigateDeleteGame('${game.id}')" style="width:100%; background-color:#ef4444; color:white;">Supprimer ce jeu</button>
@@ -399,7 +425,7 @@ export const EditGameView = (store, gameId) => {
     <style>
         .game-icon-opt.selected { background-color: var(--primary-color) !important; color: white; }
     </style>
-    `;
+`;
 };
 
 export const ConfirmDeleteGameView = (store, gameId) => {
@@ -415,18 +441,18 @@ export const ConfirmDeleteGameView = (store, gameId) => {
         <div style="font-size:4em; margin-bottom:10px; color:${game.color};">🎲</div>
         <h2 style="margin-bottom:10px;">Supprimer ${game.name} ?</h2>
         <p style="color:#666; margin-bottom:30px;">Cette action est irréversible. L'historique des parties de ce jeu ne sera plus accessible correctement.</p>
-        
+
         <button onclick="window.app.executeDeleteGame('${gameId}')" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Supprimer définitivement</button>
         <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
     </div>
-    `;
+`;
 };
 
 export const CreatePlayerView = () => `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
         <h1>Nouveau Joueur</h1>
-    </header>
+    </header >
     <div class="card">
         <label style="display:block; margin-bottom:20px;">
             Nom du joueur
@@ -440,85 +466,85 @@ export const CreatePlayerView = () => `
         </div>
         <input type="hidden" id="new-player-avatar" value="👤">
 
-        <div style="margin-bottom:20px; text-align:center;">
-             <div style="margin-bottom:5px; font-weight:bold;">Ou une photo</div>
-             
-             <!-- Camera Actions -->
-             <div id="new-player-photo-actions" style="margin-bottom:10px;">
-                 <button onclick="window.app.startCamera('new-player')" style="background:var(--primary-color); color:white; padding:8px 12px; border-radius:5px; border:none; margin-right:5px;">📷 Appareil Photo</button>
-                 <button onclick="document.getElementById('new-player-photo').click()" style="background:#eee; color:#333; padding:8px 12px; border-radius:5px; border:1px solid #ccc;">📁 Fichier</button>
-             </div>
+            <div style="margin-bottom:20px; text-align:center;">
+                <div style="margin-bottom:5px; font-weight:bold;">Ou une photo</div>
 
-             <!-- Camera View -->
-             <div id="new-player-camera-container" style="display:none; margin-bottom:10px;">
-                 <video id="new-player-camera-video" autoplay playsinline style="width:100%; max-width:250px; background:#000; border-radius:8px; margin-bottom:5px;"></video>
-                 <br>
-                 <button onclick="window.app.capturePhoto('new-player')" style="background:var(--primary-color); color:white; padding:10px 20px; border-radius:20px; border:none; font-weight:bold;">📸 Prendre Photo</button>
-                 <button onclick="window.app.stopCamera('new-player')" style="background:#eee; color:#333; padding:10px; border-radius:5px; margin-left:10px;">Annuler</button>
-             </div>
+                <!-- Camera Actions -->
+                <div id="new-player-photo-actions" style="margin-bottom:10px;">
+                    <button onclick="window.app.startCamera('new-player')" style="background:var(--primary-color); color:white; padding:8px 12px; border-radius:5px; border:none; margin-right:5px;">📷 Appareil Photo</button>
+                    <button onclick="document.getElementById('new-player-photo').click()" style="background:#eee; color:#333; padding:8px 12px; border-radius:5px; border:1px solid #ccc;">📁 Fichier</button>
+                </div>
 
-             <input type="file" id="new-player-photo" accept="image/*" onchange="window.app.handleImageUpload(this)" style="display:none;">
-             <img id="new-player-photo-preview" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:none; margin: 0 auto; border:3px solid var(--primary-color); margin-top:10px;">
-        </div>
+                <!-- Camera View -->
+                <div id="new-player-camera-container" style="display:none; margin-bottom:10px;">
+                    <video id="new-player-camera-video" autoplay playsinline style="width:100%; max-width:250px; background:#000; border-radius:8px; margin-bottom:5px;"></video>
+                    <br>
+                        <button onclick="window.app.capturePhoto('new-player')" style="background:var(--primary-color); color:white; padding:10px 20px; border-radius:20px; border:none; font-weight:bold;">📸 Prendre Photo</button>
+                        <button onclick="window.app.stopCamera('new-player')" style="background:#eee; color:#333; padding:10px; border-radius:5px; margin-left:10px;">Annuler</button>
+                </div>
 
-        <button onclick="window.app.submitCreatePlayer()" style="width:100%">Ajouter</button>
-    </div>
-    <style>
-        .avatar-opt.selected { background-color: var(--primary-color) !important; color: white; }
-    </style>
-`;
+                <input type="file" id="new-player-photo" accept="image/*" onchange="window.app.handleImageUpload(this)" style="display:none;">
+                    <img id="new-player-photo-preview" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:none; margin: 0 auto; border:3px solid var(--primary-color); margin-top:10px;">
+                    </div>
+
+                    <button onclick="window.app.submitCreatePlayer()" style="width:100%">Ajouter</button>
+            </div>
+            <style>
+                .avatar-opt.selected {background - color: var(--primary-color) !important; color: white; }
+            </style>
+            `;
 
 export const EditPlayerView = (store, playerId) => {
     const player = store.getPlayers().find(p => p.id === playerId);
     if (!player) return '<div>Joueur introuvable</div>';
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Modifier Joueur</h1>
-    </header>
-    <div class="card">
-        <input type="hidden" id="edit-player-id" value="${player.id}">
-        <label style="display:block; margin-bottom:20px;">
-            Nom du joueur
-            <input type="text" id="edit-player-name" value="${player.name}" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
+            <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                <h1>Modifier Joueur</h1>
+            </header>
+            <div class="card">
+                <input type="hidden" id="edit-player-id" value="${player.id}">
+                    <label style="display:block; margin-bottom:20px;">
+                        Nom du joueur
+                        <input type="text" id="edit-player-name" value="${player.name}" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+                    </label>
 
-        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:20px;">
-            ${['👤', '🧑‍🚀', '🦸', '🦹', '🧙', '🧟', '🧛', '🧞', '🧜', '🧚'].map(emoji => `
+                    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:20px;">
+                        ${['👤', '🧑‍🚀', '🦸', '🦹', '🧙', '🧟', '🧛', '🧞', '🧜', '🧚'].map(emoji => `
                 <div onclick="document.querySelectorAll('.avatar-opt').forEach(el=>el.classList.remove('selected')); this.classList.add('selected'); document.getElementById('edit-player-avatar').value='${emoji}'; const p = document.getElementById('edit-player-photo-preview'); p.src=''; p.style.display='none';" class="avatar-opt ${player.avatar === emoji ? 'selected' : ''}" style="font-size:2em; text-align:center; padding:5px; border-radius:5px; cursor:pointer; background:#eee;">${emoji}</div>
             `).join('')}
-        </div>
-        <input type="hidden" id="edit-player-avatar" value="${player.avatar}">
+                    </div>
+                    <input type="hidden" id="edit-player-avatar" value="${player.avatar}">
 
-        <div style="margin-bottom:20px; text-align:center;">
-             <div style="margin-bottom:5px; font-weight:bold;">Ou une photo</div>
+                        <div style="margin-bottom:20px; text-align:center;">
+                            <div style="margin-bottom:5px; font-weight:bold;">Ou une photo</div>
 
-             <!-- Camera Actions -->
-             <div id="edit-player-photo-actions" style="margin-bottom:10px;">
-                 <button onclick="window.app.startCamera('edit-player')" style="background:var(--primary-color); color:white; padding:8px 12px; border-radius:5px; border:none; margin-right:5px;">📷 Appareil Photo</button>
-                 <button onclick="document.getElementById('edit-player-photo').click()" style="background:#eee; color:#333; padding:8px 12px; border-radius:5px; border:1px solid #ccc;">📁 Fichier</button>
-             </div>
+                            <!-- Camera Actions -->
+                            <div id="edit-player-photo-actions" style="margin-bottom:10px;">
+                                <button onclick="window.app.startCamera('edit-player')" style="background:var(--primary-color); color:white; padding:8px 12px; border-radius:5px; border:none; margin-right:5px;">📷 Appareil Photo</button>
+                                <button onclick="document.getElementById('edit-player-photo').click()" style="background:#eee; color:#333; padding:8px 12px; border-radius:5px; border:1px solid #ccc;">📁 Fichier</button>
+                            </div>
 
-             <!-- Camera View -->
-             <div id="edit-player-camera-container" style="display:none; margin-bottom:10px;">
-                 <video id="edit-player-camera-video" autoplay playsinline style="width:100%; max-width:250px; background:#000; border-radius:8px; margin-bottom:5px;"></video>
-                 <br>
-                 <button onclick="window.app.capturePhoto('edit-player')" style="background:var(--primary-color); color:white; padding:10px 20px; border-radius:20px; border:none; font-weight:bold;">📸 Prendre Photo</button>
-                 <button onclick="window.app.stopCamera('edit-player')" style="background:#eee; color:#333; padding:10px; border-radius:5px; margin-left:10px;">Annuler</button>
-             </div>
+                            <!-- Camera View -->
+                            <div id="edit-player-camera-container" style="display:none; margin-bottom:10px;">
+                                <video id="edit-player-camera-video" autoplay playsinline style="width:100%; max-width:250px; background:#000; border-radius:8px; margin-bottom:5px;"></video>
+                                <br>
+                                    <button onclick="window.app.capturePhoto('edit-player')" style="background:var(--primary-color); color:white; padding:10px 20px; border-radius:20px; border:none; font-weight:bold;">📸 Prendre Photo</button>
+                                    <button onclick="window.app.stopCamera('edit-player')" style="background:#eee; color:#333; padding:10px; border-radius:5px; margin-left:10px;">Annuler</button>
+                            </div>
 
-             <input type="file" id="edit-player-photo" accept="image/*" onchange="window.app.handleImageUpload(this)" style="display:none;">
-             <img id="edit-player-photo-preview" src="${player.photo || ''}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:${player.photo ? 'block' : 'none'}; margin: 0 auto; border:3px solid var(--primary-color); margin-top:10px;">
-             ${player.photo ? `<button onclick="document.getElementById('edit-player-photo-preview').src=''; document.getElementById('edit-player-photo-preview').style.display='none';" style="margin-top:5px; background:none; border:none; color:red; text-decoration:underline; font-size:0.8em; cursor:pointer;">Supprimer photo</button>` : ''}
-        </div>
+                            <input type="file" id="edit-player-photo" accept="image/*" onchange="window.app.handleImageUpload(this)" style="display:none;">
+                                <img id="edit-player-photo-preview" src="${player.photo || ''}" style="width:100px; height:100px; border-radius:50%; object-fit:cover; display:${player.photo ? 'block' : 'none'}; margin: 0 auto; border:3px solid var(--primary-color); margin-top:10px;">
+                                    ${player.photo ? `<button onclick="document.getElementById('edit-player-photo-preview').src=''; document.getElementById('edit-player-photo-preview').style.display='none';" style="margin-top:5px; background:none; border:none; color:red; text-decoration:underline; font-size:0.8em; cursor:pointer;">Supprimer photo</button>` : ''}
+                                </div>
 
-        <button onclick="window.app.submitEditPlayer()" style="width:100%">Enregistrer</button>
-    </div>
-    <style>
-        .avatar-opt.selected { background-color: var(--primary-color) !important; color: white; }
-    </style>
-`;
+                                <button onclick="window.app.submitEditPlayer()" style="width:100%">Enregistrer</button>
+                        </div>
+                        <style>
+                            .avatar-opt.selected {background - color: var(--primary-color) !important; color: white; }
+                        </style>
+                        `;
 };
 
 export const GameSetupView = (store, gameId) => {
@@ -530,27 +556,27 @@ export const GameSetupView = (store, gameId) => {
     const defaultTarget = game.target || '';
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Configuration</h1>
-    </header>
-    <div class="card">
-        <h2 style="margin-bottom:15px; color:var(--primary-color);">${game.name}</h2>
-        <p style="margin-bottom:20px;">Définissez les conditions de fin de partie.</p>
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Configuration</h1>
+                        </header>
+                        <div class="card">
+                            <h2 style="margin-bottom:15px; color:var(--primary-color);">${game.name}</h2>
+                            <p style="margin-bottom:20px;">Définissez les conditions de fin de partie.</p>
 
-        <label style="display:block; margin-bottom:15px;">
-            Limite de Score (optionnel)
-            <input type="number" id="setup-score-limit" value="${defaultTarget}" placeholder="Ex: 1000" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
+                            <label style="display:block; margin-bottom:15px;">
+                                Limite de Score (optionnel)
+                                <input type="number" id="setup-score-limit" value="${defaultTarget}" placeholder="Ex: 1000" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+                            </label>
 
-        <label style="display:block; margin-bottom:20px;">
-            Nombre de tours (optionnel)
-            <input type="number" id="setup-round-limit" value="${defaultRounds}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
+                            <label style="display:block; margin-bottom:20px;">
+                                Nombre de tours (optionnel)
+                                <input type="number" id="setup-round-limit" value="${defaultRounds}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+                            </label>
 
-        <button onclick="window.app.finishSetupAndStart('${gameId}')" style="width:100%">Lancer la partie</button>
-    </div>
-    `;
+                            <button onclick="window.app.finishSetupAndStart('${gameId}')" style="width:100%">Lancer la partie</button>
+                        </div>
+                        `;
 };
 
 export const UpdateLimitsView = (store) => {
@@ -563,28 +589,28 @@ export const UpdateLimitsView = (store) => {
     const currentTarget = (session.config && session.config.target !== undefined) ? session.config.target : (game.target || '');
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Configuration</h1>
-    </header>
-    <div class="card">
-        <p style="margin-bottom:20px; color:#666;">Pour continuer, vous pouvez augmenter ou supprimer les limites de la partie.</p>
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Configuration</h1>
+                        </header>
+                        <div class="card">
+                            <p style="margin-bottom:20px; color:#666;">Pour continuer, vous pouvez augmenter ou supprimer les limites de la partie.</p>
 
-        <label style="display:block; margin-bottom:15px;">
-            Nouvelle Limite de Score
-            <input type="number" id="update-score-limit" value="${currentTarget}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-            <small style="color:#999;">Laissez vide pour illimité</small>
-        </label>
+                            <label style="display:block; margin-bottom:15px;">
+                                Nouvelle Limite de Score
+                                <input type="number" id="update-score-limit" value="${currentTarget}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+                                    <small style="color:#999;">Laissez vide pour illimité</small>
+                            </label>
 
-        <label style="display:block; margin-bottom:20px;">
-            Nouveau Nombre de Tours
-            <input type="number" id="update-round-limit" value="${currentRounds}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-            <small style="color:#999;">Laissez vide pour illimité</small>
-        </label>
+                            <label style="display:block; margin-bottom:20px;">
+                                Nouveau Nombre de Tours
+                                <input type="number" id="update-round-limit" value="${currentRounds}" placeholder="Illimité" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
+                                    <small style="color:#999;">Laissez vide pour illimité</small>
+                            </label>
 
-        <button onclick="window.app.submitUpdateLimits()" style="width:100%">Valider et Continuer</button>
-    </div>
-    `;
+                            <button onclick="window.app.submitUpdateLimits()" style="width:100%">Valider et Continuer</button>
+                        </div>
+                        `;
 };
 
 
@@ -597,26 +623,26 @@ export const AddIngamePlayerView = (store) => {
     const availablePlayers = store.getPlayers().filter(p => !existingIds.has(p.id));
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Ajouter un joueur</h1>
-    </header>
-    <div class="grid">
-        <!-- Option to create new -->
-        <div class="card" onclick="window.app.router.navigate('createPlayer')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:100px; border: 2px dashed #ccc; background:transparent;">
-             <div style="text-align:center; color:#888;">
-                <span style="font-size:2em;">+</span><br>Nouveau
-             </div>
-        </div>
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Ajouter un joueur</h1>
+                        </header>
+                        <div class="grid">
+                            <!-- Option to create new -->
+                            <div class="card" onclick="window.app.router.navigate('createPlayer')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:100px; border: 2px dashed #ccc; background:transparent;">
+                                <div style="text-align:center; color:#888;">
+                                    <span style="font-size:2em;">+</span><br>Nouveau
+                                </div>
+                            </div>
 
-        ${availablePlayers.map(p => `
+                            ${availablePlayers.map(p => `
             <div class="card" onclick="window.app.addPlayerToGame('${p.id}')" style="cursor:pointer; text-align:center;">
                 <span style="font-size:2em;">${p.avatar}</span>
                 <h3>${p.name}</h3>
             </div>
         `).join('')}
-    </div>
-    `;
+                        </div>
+                        `;
 };
 
 export const RemoveIngamePlayerView = (store) => {
@@ -630,25 +656,25 @@ export const RemoveIngamePlayerView = (store) => {
     });
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Supprimer un joueur</h1>
-    </header>
-    <div class="card">
-        <p style="margin-bottom:20px; color: #ef4444;">Selectionnez le joueur à supprimer.</p>
-        <div class="grid">
-            ${players.map(p => `
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Supprimer un joueur</h1>
+                        </header>
+                        <div class="card">
+                            <p style="margin-bottom:20px; color: #ef4444;">Selectionnez le joueur à supprimer.</p>
+                            <div class="grid">
+                                ${players.map(p => `
                 <div class="card" onclick="window.app.router.navigate('confirmRemoveIngamePlayer', { playerId: '${p.id}' })" style="cursor:pointer; text-align:center;">
                     <span style="font-size:2em;">${p.avatar}</span>
                     <h3>${p.name}</h3>
                 </div>
             `).join('')}
-        </div>
-    </div>
-    <style>
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-    </style>
-    `;
+                            </div>
+                        </div>
+                        <style>
+                            .grid {display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+                        </style>
+                        `;
 };
 
 export const ReorderIngamePlayersView = (store) => {
@@ -674,21 +700,21 @@ export const ReorderIngamePlayersView = (store) => {
     // We can call updateReorderIngameUI() immediately after render (like we did for navigate).
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.cancelReorderIngame()" style="padding: 8px 12px; margin-right: 10px;">Annuler</button>
-        <h1>Ordre des joueurs</h1>
-        <button onclick="window.app.saveReorderIngame()" style="padding: 8px 12px; margin-left: auto; background:var(--primary-color); color:white; border:none;">Sauvegarder</button>
-    </header>
-    <div class="card">
-        <p style="margin-bottom:10px; color:#666; font-size:0.9em;">Glissez pour réorganiser.</p>
-        <div id="reorder-ingame-list"></div>
-    </div>
-    
-    <!-- Script to init UI -->
-    <script>
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.cancelReorderIngame()" style="padding: 8px 12px; margin-right: 10px;">Annuler</button>
+                            <h1>Ordre des joueurs</h1>
+                            <button onclick="window.app.saveReorderIngame()" style="padding: 8px 12px; margin-left: auto; background:var(--primary-color); color:white; border:none;">Sauvegarder</button>
+                        </header>
+                        <div class="card">
+                            <p style="margin-bottom:10px; color:#666; font-size:0.9em;">Glissez pour réorganiser.</p>
+                            <div id="reorder-ingame-list"></div>
+                        </div>
+
+                        <!-- Script to init UI -->
+                        <script>
         setTimeout(() => window.app.updateReorderIngameUI(), 50);
-    </script>
-    `;
+                        </script>
+                        `;
 };
 
 export const ConfirmRemoveIngamePlayerView = (store, playerId) => {
@@ -699,54 +725,54 @@ export const ConfirmRemoveIngamePlayerView = (store, playerId) => {
     if (!player) return '<div>Erreur: Joueur introuvable</div>';
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Confirmation</h1>
-    </header>
-    <div class="card" style="text-align:center; padding: 40px 20px;">
-        <div style="font-size:4em; margin-bottom:10px;">${player.avatar}</div>
-        <h2 style="margin-bottom:10px;">${player.name}</h2>
-        <p style="color:#666; margin-bottom:30px;">Voulez-vous vraiment supprimer ce joueur de la partie en cours ? Son score sera perdu.</p>
-        
-        <button onclick="window.app.executeRemovePlayer('${playerId}')" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Supprimer définitivement</button>
-        <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
-    </div>
-    `;
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Confirmation</h1>
+                        </header>
+                        <div class="card" style="text-align:center; padding: 40px 20px;">
+                            <div style="font-size:4em; margin-bottom:10px;">${player.avatar}</div>
+                            <h2 style="margin-bottom:10px;">${player.name}</h2>
+                            <p style="color:#666; margin-bottom:30px;">Voulez-vous vraiment supprimer ce joueur de la partie en cours ? Son score sera perdu.</p>
+
+                            <button onclick="window.app.executeRemovePlayer('${playerId}')" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Supprimer définitivement</button>
+                            <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
+                        </div>
+                        `;
 };
 
 export const ConfirmEndGameView = (store) => {
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Fin de partie</h1>
-    </header>
-    <div class="card" style="text-align:center; padding: 40px 20px;">
-        <div style="font-size:4em; margin-bottom:10px;">🏁</div>
-        <h2 style="margin-bottom:10px;">Terminer la partie ?</h2>
-        <p style="color:#666; margin-bottom:30px;">La partie sera sauvegardée dans l'historique et vous retournerez à l'accueil.</p>
-        
-        <button onclick="window.app.executeEndGame()" style="width:100%; background-color:var(--primary-color); margin-bottom:15px; padding:15px;">Terminer la partie</button>
-        <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
-    </div>
-    `;
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Fin de partie</h1>
+                        </header>
+                        <div class="card" style="text-align:center; padding: 40px 20px;">
+                            <div style="font-size:4em; margin-bottom:10px;">🏁</div>
+                            <h2 style="margin-bottom:10px;">Terminer la partie ?</h2>
+                            <p style="color:#666; margin-bottom:30px;">La partie sera sauvegardée dans l'historique et vous retournerez à l'accueil.</p>
+
+                            <button onclick="window.app.executeEndGame()" style="width:100%; background-color:var(--primary-color); margin-bottom:15px; padding:15px;">Terminer la partie</button>
+                            <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
+                        </div>
+                        `;
 };
 
 export const ConfirmCancelGameView = (store) => {
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Annuler la partie</h1>
-    </header>
-    <div class="card" style="text-align:center; padding: 40px 20px;">
-        <div style="font-size:4em; margin-bottom:10px; color:#ef4444;">🗑️</div>
-        <h2 style="margin-bottom:10px;">Tout effacer ?</h2>
-        <p style="color:#666; margin-bottom:30px;">Attention, si vous annulez, <strong>aucune donnée ne sera sauvegardée</strong>. L'historique de cette partie sera perdu.</p>
-        
-        <button onclick="window.app.executeCancelGame()" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Annuler sans sauvegarder</button>
-        <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Retour au jeu</button>
-    </div>
-    </div>
-    `;
+                        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                            <h1>Annuler la partie</h1>
+                        </header>
+                        <div class="card" style="text-align:center; padding: 40px 20px;">
+                            <div style="font-size:4em; margin-bottom:10px; color:#ef4444;">🗑️</div>
+                            <h2 style="margin-bottom:10px;">Tout effacer ?</h2>
+                            <p style="color:#666; margin-bottom:30px;">Attention, si vous annulez, <strong>aucune donnée ne sera sauvegardée</strong>. L'historique de cette partie sera perdu.</p>
+
+                            <button onclick="window.app.executeCancelGame()" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Annuler sans sauvegarder</button>
+                            <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Retour au jeu</button>
+                        </div>
+                    </div>
+                    `;
 };
 
 export const GameOverView = (store) => {
@@ -765,16 +791,16 @@ export const GameOverView = (store) => {
     const winner = players[0];
 
     return `
-    <div class="gameover-container">
-        <div class="gameover-icon">🏆</div>
-        <h1 class="gameover-title">${winner.name} a gagné !</h1>
-        <p class="gameover-subtitle">Partie terminée</p>
+                    <div class="gameover-container">
+                        <div class="gameover-icon">🏆</div>
+                        <h1 class="gameover-title">${winner.name} a gagné !</h1>
+                        <p class="gameover-subtitle">Partie terminée</p>
 
-        <div class="card">
-            <h3 class="gameover-section-title">Classement Final</h3>
-            <table class="leaderboard-table">
-                 <tbody>
-                    ${players.map((p, i) => {
+                        <div class="card">
+                            <h3 class="gameover-section-title">Classement Final</h3>
+                            <table class="leaderboard-table">
+                                <tbody>
+                                    ${players.map((p, i) => {
         let rankIcon = `#${i + 1}`;
         let size = '1em';
 
@@ -799,27 +825,27 @@ export const GameOverView = (store) => {
                             <td class="gameover-score-cell">${p.score}</td>
                         </tr>
                  `}).join('')}
-                 </tbody>
-            </table>
-        </div>
+                                </tbody>
+                            </table>
+                        </div>
 
-        <button onclick="window.app.executeEndGame()" style="width:100%; margin-top:20px; padding:15px; font-size:1.1rem;">Retour à l'accueil</button>
-    </div>
-    `;
+                        <button onclick="window.app.executeEndGame()" style="width:100%; margin-top:20px; padding:15px; font-size:1.1rem;">Retour à l'accueil</button>
+                    </div>
+                    `;
 };
 
 export const AboutView = () => `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>A propos</h1>
-    </header>
-    <div class="card">
-        <h3>Compteur de Points</h3>
-        <p>Version 1.0</p>
-        <p style="margin-top:20px;">Une application simple et efficace pour compter les points de vos jeux de société favoris (Tarot, Belote, UNO, et bien d'autres).</p>
-        <p style="margin-top:20px;">Développé avec passion.</p>
-    </div>
-`;
+                    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                        <h1>A propos</h1>
+                    </header>
+                    <div class="card">
+                        <h3>Compteur de Points</h3>
+                        <p>Version 1.0</p>
+                        <p style="margin-top:20px;">Une application simple et efficace pour compter les points de vos jeux de société favoris (Tarot, Belote, UNO, et bien d'autres).</p>
+                        <p style="margin-top:20px;">Développé avec passion.</p>
+                    </div>
+                    `;
 
 export const StatisticsView = (store) => {
     // Basic stats calculation
@@ -834,42 +860,42 @@ export const StatisticsView = (store) => {
     }).sort((a, b) => b.count - a.count);
 
     return `
-    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
-        <h1>Statistiques</h1>
-    </header>
+                    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px;">&larr;</button>
+                        <h1>Statistiques</h1>
+                    </header>
 
-    <div class="card">
-        <h3 style="margin-bottom:10px;">Parties Jouées</h3>
-        <table style="width:100%; border-collapse:collapse;">
-            ${statsByGame.map(g => `
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Parties Jouées</h3>
+                        <table style="width:100%; border-collapse:collapse;">
+                            ${statsByGame.map(g => `
                 <tr style="border-bottom:1px solid #eee;">
                     <td style="padding:10px; border-left: 4px solid ${g.color}">${g.name}</td>
                     <td style="padding:10px; text-align:right; font-weight:bold;">${g.count}</td>
                 </tr>
             `).join('')}
-        </table>
-    </div>
+                        </table>
+                    </div>
 
-    <div class="card">
-         <h3 style="margin-bottom:10px;">Comparateur</h3>
-         <p style="font-size:0.9em; color:#666; margin-bottom:10px;">Sélectionnez les joueurs pour voir leurs stats communes.</p>
-         
-         <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:10px; margin-bottom:20px;">
-            ${players.map(p => `
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Comparateur</h3>
+                        <p style="font-size:0.9em; color:#666; margin-bottom:10px;">Sélectionnez les joueurs pour voir leurs stats communes.</p>
+
+                        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:10px; margin-bottom:20px;">
+                            ${players.map(p => `
                 <div class="stats-player-selector" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.updateStats()" style="cursor:pointer; text-align:center; padding:5px; border:1px solid #eee; border-radius:8px;">
                     <div style="font-size:1.5em;">${p.avatar}</div>
                     <div style="font-size:0.8em; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
                 </div>
             `).join('')}
-         </div>
+                        </div>
 
-         <div id="stats-results">
-            <p style="text-align:center; color:#999; font-style:italic;">Sélectionnez au moins un joueur...</p>
-         </div>
-    </div>
-    <style>
-        .stats-player-selector.selected { border: 2px solid var(--primary-color); background-color: #e0f2fe; }
-    </style>
-    `;
+                        <div id="stats-results">
+                            <p style="text-align:center; color:#999; font-style:italic;">Sélectionnez au moins un joueur...</p>
+                        </div>
+                    </div>
+                    <style>
+                        .stats-player-selector.selected {border: 2px solid var(--primary-color); background-color: #e0f2fe; }
+                    </style>
+                    `;
 };

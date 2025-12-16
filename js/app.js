@@ -611,7 +611,7 @@ class App {
         const idInput = document.getElementById('edit-game-id');
         const nameInput = document.getElementById('edit-game-name');
         const typeInput = document.getElementById('edit-game-type');
-        const colorInput = document.getElementById('edit-game-color');
+        const colorInput = document.getElementById('edit-game-color-output');
         const iconInput = document.getElementById('edit-game-icon');
 
         const roundsInput = document.getElementById('edit-game-rounds');
