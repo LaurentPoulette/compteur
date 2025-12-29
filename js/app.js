@@ -42,6 +42,9 @@ class App {
         this.router.register('editGame', ({ gameId }) => EditGameView(this.store, gameId));
         this.router.register('confirmDeleteGame', ({ gameId }) => ConfirmDeleteGameView(this.store, gameId));
         this.router.register('updateLimits', () => UpdateLimitsView(this.store));
+        this.router.register('updateLimits', () => UpdateLimitsView(this.store));
+        // History is now part of Statistics
+
 
         // Restore state or go home
         const session = this.store.restoreSession();
@@ -1069,96 +1072,29 @@ class App {
     //     }
     // }
 
-    updateStats() {
-        const selectedEls = document.querySelectorAll('.stats-player-selector.selected');
-        const selectedIds = Array.from(selectedEls).map(el => el.dataset.id);
-        const resultsContainer = document.getElementById('stats-results');
-
-        if (selectedIds.length === 0) {
-            resultsContainer.innerHTML = '<p style="text-align:center; color:#999; font-style:italic;">Sélectionnez au moins un joueur...</p>';
-            return;
+    updateStatisticsState(action, value) {
+        if (!this.statsState) {
+            this.statsState = { game: 'all', players: [], tab: 'comparator' };
         }
 
-        const history = this.store.state.history || [];
-        const gamesDef = this.store.getGames();
-        const playersDef = this.store.getPlayers();
-
-        // Filter games where ALL selected players participated
-        const commonGames = history.filter(h => {
-            const playerIdsInGame = new Set(h.players.map(p => p.id));
-            return selectedIds.every(id => playerIdsInGame.has(id));
-        });
-
-        if (commonGames.length === 0) {
-            resultsContainer.innerHTML = '<p style="text-align:center; color:#999;">Aucune partie commune trouvée.</p>';
-            return;
+        if (action === 'game') {
+            this.statsState.game = value;
+        } else if (action === 'togglePlayer') {
+            const playerId = value;
+            const index = this.statsState.players.indexOf(playerId);
+            if (index === -1) {
+                this.statsState.players.push(playerId);
+            } else {
+                this.statsState.players.splice(index, 1);
+            }
+        } else if (action === 'tab') {
+            this.statsState.tab = value;
         }
 
-        // Helper to compute stats for a list of games
-        const computeStats = (gameList) => {
-            const stats = {};
-            selectedIds.forEach(id => {
-                stats[id] = { wins: 0, sumRank: 0, count: 0 };
-            });
-
-            gameList.forEach(g => {
-                const gameDef = gamesDef.find(gd => gd.id === g.gameId);
-                const isLowest = gameDef && gameDef.winCondition === 'lowest';
-
-                // Sort players of this game to find ranks
-                // create shallow copy to sort
-                const sorted = [...g.players].sort((a, b) => isLowest ? a.score - b.score : b.score - a.score);
-
-                selectedIds.forEach(id => {
-                    const rankIndex = sorted.findIndex(p => p.id === id);
-                    if (rankIndex !== -1) {
-                        stats[id].count++;
-                        stats[id].sumRank += (rankIndex + 1);
-                        if (rankIndex === 0) stats[id].wins++;
-                    }
-                });
-            });
-            return stats;
-        };
-
-        const globalStats = computeStats(commonGames);
-
-        // Render
-        let html = `
-            <div style="margin-bottom:20px; text-align:center; font-weight:bold;">
-                ${commonGames.length} partie(s) commune(s)
-            </div>
-            
-            <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
-                <thead>
-                    <tr style="background:#eee; font-size:0.9em;">
-                        <th style="padding:5px;">Joueur</th>
-                        <th style="padding:5px; text-align:center;">Victoires</th>
-                        <th style="padding:5px; text-align:center;">Rang Moyen</th>
-                        <th style="padding:5px; text-align:center;">Win %</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        selectedIds.forEach(id => {
-            const s = globalStats[id];
-            const pDef = playersDef.find(p => p.id === id);
-            const avgRank = s.count ? (s.sumRank / s.count).toFixed(1) : '-';
-            const winRate = s.count ? Math.round((s.wins / s.count) * 100) : 0;
-
-            html += `
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:5px;">${pDef.avatar} ${pDef.name}</td>
-                    <td style="padding:5px; text-align:center; font-weight:bold;">${s.wins}</td>
-                    <td style="padding:5px; text-align:center;">${avgRank}</td>
-                    <td style="padding:5px; text-align:center;">${winRate}%</td>
-                </tr>
-            `;
-        });
-        html += `</tbody></table>`;
-
-        resultsContainer.innerHTML = html;
+        // Re-render
+        const html = StatisticsView(this.store);
+        const app = document.getElementById('app');
+        if (app) app.innerHTML = html;
     }
 
     // Navigate to confirmation page

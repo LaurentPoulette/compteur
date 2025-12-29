@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.0.4';
+export const APP_VERSION = '1.0.5';
 
 export const HomeView = (store) => {
     const games = store.getGames();
@@ -832,67 +832,299 @@ export const GameOverView = (store) => {
 };
 
 export const AboutView = () => `
-                    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-                        <h1>A propos</h1>
-                    </header>
-                    <div class="card">
-                        <h3>Compteur de Points</h3>
-                        <p>Version ${APP_VERSION}</p>
-                        <p style="margin-top:20px;">Une application simple et efficace pour compter les points de vos jeux de société favoris (Tarot, Belote, UNO, et bien d'autres).</p>
-                        <p style="margin-top:20px;">Développé avec passion.</p>
-                    </div>
-                    `;
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
+        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+        <h1>A propos</h1>
+    </header>
+    <div class="card">
+        <h3>Compteur de Points</h3>
+        <p>Version ${APP_VERSION}</p>
+        <p style="margin-top:20px;">Une application simple et efficace pour compter les points de vos jeux de société favoris (Tarot, Belote, UNO, et bien d'autres).</p>
+        <p style="margin-top:20px;">Développé avec passion.</p>
+    </div>
+`;
 
 export const StatisticsView = (store) => {
-    // Basic stats calculation
+    // Initialize statsState if needed
+    if (!window.app.statsState) {
+        window.app.statsState = {
+            game: 'all',
+            players: [],
+            tab: 'comparator' // 'comparator', 'history', 'global'
+        };
+    }
+    const state = window.app.statsState;
+    const history = (store.state.history || []).sort((a, b) => b.startTime - a.startTime);
     const games = store.getGames();
-    const history = store.state.history || [];
     const players = store.getPlayers();
 
-    // 1. Games played count
-    const statsByGame = games.map(g => {
-        const count = history.filter(h => h.gameId === g.id).length;
-        return { ...g, count };
-    }).sort((a, b) => b.count - a.count);
+    // ----------------------
+    // FILTER LOGIC (Shared for Comparator & History)
+    // ----------------------
+    const filterGame = state.game;
+    const filterPlayers = state.players || [];
+
+    // ----------------------
+    // TAB: GLOBAL CONTENT
+    // ----------------------
+    let globalContent = '';
+    if (state.tab === 'global') {
+        const statsByGame = games.map(g => {
+            const count = history.filter(h => {
+                const gameMatch = h.gameId === g.id;
+                let playerMatch = true;
+                if (filterPlayers.length > 0) {
+                    const sessionPlayerIds = new Set(h.players.map(p => p.id));
+                    playerMatch = filterPlayers.every(id => sessionPlayerIds.has(id));
+                }
+                return gameMatch && playerMatch;
+            }).length;
+            return { ...g, count };
+        }).sort((a, b) => b.count - a.count);
+
+        globalContent = `
+            <div class="card">
+                <h3 style="margin-bottom:10px;">Parties Jouées (${filterPlayers.length > 0 ? 'Filtré' : 'Global'})</h3>
+                <table style="width:100%; border-collapse:collapse;">
+                    ${statsByGame.map(g => `
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:10px; border-left: 4px solid ${g.color}">${g.name}</td>
+                            <td style="padding:10px; text-align:right; font-weight:bold;">${g.count}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            </div>
+        `;
+    }
+
+    // ----------------------
+    // TAB: COMPARATOR CONTENT
+    // ----------------------
+    let comparatorContent = '';
+    if (state.tab === 'comparator') {
+        // Computation Logic
+        // Filter games where ALL selected players participated AND match game filter
+        const commonGames = history.filter(h => {
+            const playerIdsInGame = new Set(h.players.map(p => p.id));
+            const playersMatch = filterPlayers.length > 0 ? filterPlayers.every(id => playerIdsInGame.has(id)) : false; // If no players selected, showing nothing or global? Logic says "Select players..."
+            // If no player selected, we show help text.
+
+            const gameMatch = (filterGame === 'all') || (h.gameId === filterGame);
+
+            if (filterPlayers.length === 0) return false;
+            return playersMatch && gameMatch;
+        });
+
+        let resultsHtml = '';
+        if (filterPlayers.length === 0) {
+            resultsHtml = '<p style="text-align:center; color:#999; font-style:italic;">Sélectionnez au moins un joueur ci-dessus...</p>';
+        } else if (commonGames.length === 0) {
+            resultsHtml = '<p style="text-align:center; color:#999;">Aucune partie commune trouvée.</p>';
+        } else {
+            // Helper to compute
+            const stats = {};
+            filterPlayers.forEach(id => { stats[id] = { wins: 0, sumRank: 0, count: 0 }; });
+
+            commonGames.forEach(g => {
+                const gameDef = games.find(gd => gd.id === g.gameId);
+                const isLowest = gameDef && gameDef.winCondition === 'lowest';
+                const sorted = [...g.players].sort((a, b) => isLowest ? a.score - b.score : b.score - a.score);
+
+                filterPlayers.forEach(id => {
+                    const rankIndex = sorted.findIndex(p => p.id === id);
+                    if (rankIndex !== -1) {
+                        stats[id].count++;
+                        stats[id].sumRank += (rankIndex + 1);
+                        if (rankIndex === 0) stats[id].wins++;
+                    }
+                });
+            });
+
+            resultsHtml = `
+                <div style="margin-bottom:20px; text-align:center; font-weight:bold;">
+                    ${commonGames.length} partie(s) commune(s)
+                </div>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                    <thead>
+                        <tr style="background:#eee; font-size:0.9em;">
+                            <th style="padding:5px;">Joueur</th>
+                            <th style="padding:5px; text-align:center;">Victoires</th>
+                            <th style="padding:5px; text-align:center;">Rang Moyen</th>
+                            <th style="padding:5px; text-align:center;">Win %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+             `;
+
+            filterPlayers.forEach(id => {
+                const s = stats[id];
+                const pDef = players.find(p => p.id === id);
+                const avgRank = s.count ? (s.sumRank / s.count).toFixed(1) : '-';
+                const winRate = s.count ? Math.round((s.wins / s.count) * 100) : 0;
+                resultsHtml += `
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:5px;">${pDef.avatar} ${pDef.name}</td>
+                        <td style="padding:5px; text-align:center; font-weight:bold;">${s.wins}</td>
+                        <td style="padding:5px; text-align:center;">${avgRank}</td>
+                        <td style="padding:5px; text-align:center;">${winRate}%</td>
+                    </tr>
+                `;
+            });
+            resultsHtml += `</tbody></table>`;
+        }
+
+        comparatorContent = `
+            <div class="card">
+                ${resultsHtml}
+            </div>
+        `;
+    }
+
+    // ----------------------
+    // TAB: HISTORY CONTENT
+    // ----------------------
+    let historyContent = '';
+    if (state.tab === 'history') {
+        const filteredHistory = history.filter(session => {
+            let gameMatch = (filterGame === 'all') || (session.gameId === filterGame);
+
+            // Player Match: Checks if ALL selected players are in the session (Intersection logic)
+            // If NO player selected, show ALL? Or show NONE? 
+            // In history view, usually "No filter" means "All".
+            // But if I have a "Filter Players" section, and none selected, implies "No filter".
+            // Let's assume empty selection = All.
+
+            let playerMatch = true;
+            if (filterPlayers.length > 0) {
+                const sessionPlayerIds = new Set(session.players.map(p => p.id));
+                playerMatch = filterPlayers.every(id => sessionPlayerIds.has(id));
+            }
+            return gameMatch && playerMatch;
+        });
+
+        historyContent = `
+            <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
+                <div id="history-list">
+                    ${filteredHistory.length === 0 ? '<p style="text-align:center; color:#666;">Aucune partie trouvée.</p>' : filteredHistory.map(session => {
+            const game = games.find(g => g.id === session.gameId);
+            const gameName = game ? game.name : 'Jeu inconnu';
+            const gameColor = game ? game.color : '#ccc';
+            const date = new Date(session.startTime).toLocaleDateString() + ' ' + new Date(session.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const isLowestWin = game && game.winCondition === 'lowest';
+            const sortedPlayers = [...session.players].sort((a, b) => isLowestWin ? a.score - b.score : b.score - a.score);
+            const roundsCount = session.history.length;
+
+            const leaderboardHtml = sortedPlayers.map((p, i) => {
+                const info = players.find(pl => pl.id === p.id) || { name: '?', avatar: '?' };
+                let rankIcon = `#${i + 1}`;
+                if (i === 0) rankIcon = '🥇';
+                if (i === 1) rankIcon = '🥈';
+                if (i === 2) rankIcon = '🥉';
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:2px 0;">
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <span style="width:20px; text-align:center;">${rankIcon}</span>
+                            <span>${info.avatar} ${info.name}</span>
+                        </div>
+                        <span style="font-weight:bold;">${p.score}</span>
+                    </div>`;
+            }).join('');
+
+            const detailsId = `history-details-${session.sessionId}`;
+            const historyTableHtml = `
+                    <div id="${detailsId}" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <h4 style="margin-bottom:10px; color:#666;">Détail des tours</h4>
+                        <div style="overflow-x:auto;">
+                            <table class="history-table" style="text-align:center; font-size:0.9em;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding:5px;">#</th>
+                                        ${session.players.map(p => {
+                const info = players.find(pl => pl.id === p.id) || { name: '?', avatar: '?' };
+                return `<th style="padding:5px;">${info.avatar}</th>`;
+            }).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${session.history.map((round, i) => `
+                                        <tr>
+                                            <td style="padding:5px; border-bottom:1px solid #eee;">${i + 1}</td>
+                                            ${session.players.map(p => {
+                const val = round[p.id];
+                return `<td style="padding:5px; border-bottom:1px solid #eee;">${val !== undefined ? val : '-'}</td>`;
+            }).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+
+            return `
+                    <div class="card" onclick="window.app.toggleHistoryDetails('${session.sessionId}')" style="border-left: 4px solid ${gameColor}; margin-bottom:10px; padding:10px; cursor:pointer;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                            <div>
+                                <div style="font-weight:bold; font-size:1.1em;">${gameName}</div>
+                                <div style="font-size:0.8em; color:#666;">${date}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:0.8em; color:#666;">${session.players.length} joueurs</div>
+                                <div style="font-size:0.8em; color:#666;">${roundsCount} tours</div>
+                            </div>
+                        </div>
+                        <div style="background:#f9f9f9; padding:10px; border-radius:8px;">${leaderboardHtml}</div>
+                        <div style="text-align:center; margin-top:5px; color:#999; font-size:0.8em;">▼ Toucher pour voir le détail</div>
+                        ${historyTableHtml}
+                    </div>`;
+        }).join('')}
+                </div>
+            </div>`;
+    }
 
     return `
-                    <header style="display:flex; align-items:center; margin-bottom: 20px;">
-                        <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
-                        <h1>Statistiques</h1>
-                    </header>
+        <header style="display:flex; align-items:center; margin-bottom: 20px;">
+            <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+            <h1>Statistiques</h1>
+        </header>
 
-                    <div class="card">
-                        <h3 style="margin-bottom:10px;">Parties Jouées</h3>
-                        <table style="width:100%; border-collapse:collapse;">
-                            ${statsByGame.map(g => `
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:10px; border-left: 4px solid ${g.color}">${g.name}</td>
-                    <td style="padding:10px; text-align:right; font-weight:bold;">${g.count}</td>
-                </tr>
-            `).join('')}
-                        </table>
-                    </div>
-
-                    <div class="card">
-                        <h3 style="margin-bottom:10px;">Comparateur</h3>
-                        <p style="font-size:0.9em; color:#666; margin-bottom:10px;">Sélectionnez les joueurs pour voir leurs stats communes.</p>
-
-                        <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:10px; margin-bottom:20px;">
-                            ${players.map(p => `
-                <div class="stats-player-selector" data-id="${p.id}" onclick="this.classList.toggle('selected'); window.app.updateStats()" style="cursor:pointer; text-align:center; padding:5px; border:1px solid #eee; border-radius:8px;">
-                    <div style="font-size:1.5em;">${p.avatar}</div>
-                    <div style="font-size:0.8em; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+        <!-- FILTERS -->
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="margin-bottom:10px;">
+                 <label style="font-weight:bold; font-size:0.9em; display:block; margin-bottom:5px;">Jeu</label>
+                 <select onchange="window.app.updateStatisticsState('game', this.value)" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px; background:white;">
+                    <option value="all">Tous les jeux</option>
+                    ${games.map(g => `<option value="${g.id}" ${filterGame === g.id ? 'selected' : ''}>${g.name}</option>`).join('')}
+                </select>
+            </div>
+            <div>
+                <label style="font-weight:bold; font-size:0.9em; display:block; margin-bottom:5px;">Joueurs (filtre)</label>
+                <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:5px;">
+                     ${players.map(p => {
+        const isSelected = filterPlayers.includes(p.id);
+        return `
+                            <div onclick="window.app.updateStatisticsState('togglePlayer', '${p.id}')" style="cursor:pointer; text-align:center; padding:5px; border:1px solid ${isSelected ? 'var(--primary-color)' : '#eee'}; background-color: ${isSelected ? '#e0f2fe' : 'transparent'}; border-radius:8px;">
+                                <div style="font-size:1.5em;">${p.avatar}</div>
+                                <div style="font-size:0.7em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name}</div>
+                            </div>
+                         `;
+    }).join('')}
                 </div>
-            `).join('')}
-                        </div>
+            </div>
+        </div>
 
-                        <div id="stats-results">
-                            <p style="text-align:center; color:#999; font-style:italic;">Sélectionnez au moins un joueur...</p>
-                        </div>
-                    </div>
-                    <style>
-                        .stats-player-selector.selected {border: 2px solid var(--primary-color); background-color: #e0f2fe; }
-                    </style>
-                    `;
+        <!-- TABS -->
+        <div style="display:flex; margin-bottom:20px; border-bottom:1px solid #ccc;">
+            <button onclick="window.app.updateStatisticsState('tab', 'comparator')" style="flex:1; padding:10px; border:none; background:${state.tab === 'comparator' ? 'white' : '#e5e5e5'}; color: #333; border-bottom:${state.tab === 'comparator' ? '3px solid var(--primary-color)' : 'none'}; font-weight:${state.tab === 'comparator' ? 'bold' : 'normal'}; cursor:pointer;">Comparateur</button>
+            <button onclick="window.app.updateStatisticsState('tab', 'history')" style="flex:1; padding:10px; border:none; background:${state.tab === 'history' ? 'white' : '#e5e5e5'}; color: #333; border-bottom:${state.tab === 'history' ? '3px solid var(--primary-color)' : 'none'}; font-weight:${state.tab === 'history' ? 'bold' : 'normal'}; cursor:pointer;">Historique</button>
+            <button onclick="window.app.updateStatisticsState('tab', 'global')" style="flex:1; padding:10px; border:none; background:${state.tab === 'global' ? 'white' : '#e5e5e5'}; color: #333; border-bottom:${state.tab === 'global' ? '3px solid var(--primary-color)' : 'none'}; font-weight:${state.tab === 'global' ? 'bold' : 'normal'}; cursor:pointer;">Global</button>
+        </div>
+
+        <!-- CONTENT -->
+        <div>
+            ${state.tab === 'comparator' ? comparatorContent : ''}
+            ${state.tab === 'history' ? historyContent : ''}
+            ${state.tab === 'global' ? globalContent : ''}
+        </div>
+    `;
 };
