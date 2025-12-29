@@ -15,6 +15,7 @@ export const HomeView = (store) => {
             </div>
         </div>
 
+        <div style="flex:1; overflow-y:auto; width:100%;">
         <div class="grid" style="padding-bottom:100px;">
             <!-- New Game Card -->
             <div class="card" onclick="window.app.router.navigate('createGame')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:80px; border: 2px dashed #ccc; background:transparent;">
@@ -34,6 +35,7 @@ export const HomeView = (store) => {
                 </div>
             `).join('')}
         </div>
+        </div>
     `;
 };
 
@@ -44,6 +46,7 @@ export const PlayerSelectView = (store, gameId) => {
             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
             <h1>Choix des joueurs</h1>
         </header>
+        <div style="flex:1; overflow-y:auto; width:100%;">
         <p class="subtitle">Sélectionnez les joueurs pour la partie</p>
         <div class="grid" id="player-grid" style="padding-bottom: 100px;">
             <!-- New Player Card -->
@@ -71,6 +74,9 @@ export const PlayerSelectView = (store, gameId) => {
     }).join('')}
         </div>
         
+        </div>
+        </div>
+        
         <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
             <button onclick="window.app.navigatePlayerOrder('${gameId}')" style="width:100%; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">Suivant</button>
         </div>
@@ -86,10 +92,14 @@ export const PlayerOrderView = (store, gameId) => {
              <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
             <h1>Ordre des joueurs</h1>
         </header>
+        <div style="flex:1; overflow-y:auto; width:100%;">
         <p class="subtitle"></p>
         
         <div id="selected-players-list" style="margin-bottom:80px;">
              <!-- Populated by window.app.updateSelectedPlayersUI() -->
+        </div>
+
+        </div>
         </div>
 
         <script>
@@ -291,10 +301,11 @@ export const ActiveGameView = (store) => {
     `;
 };
 export const CreateGameView = () => `
-    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Nouveau Jeu</h1>
-    </header >
+    </header>
+    <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
     <div class="card">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #f0f0f0; padding-bottom:10px;">
             <label for="new-game-name" style="font-weight:bold; width: 50%;">Nom du jeu</label>
@@ -330,6 +341,7 @@ export const CreateGameView = () => `
 
         <button onclick="window.app.submitCreateGame()" style="width:100%">Créer</button>
     </div>
+    </div>
 `;
 
 export const EditGameView = (store, gameId) => {
@@ -337,10 +349,11 @@ export const EditGameView = (store, gameId) => {
     if (!game) return '<div>Jeu introuvable</div>';
 
     return `
-    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Modifier Jeu</h1>
-    </header >
+    </header>
+    <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
     <div class="card">
         <input type="hidden" id="edit-game-id" value="${game.id}">
         
@@ -379,6 +392,7 @@ export const EditGameView = (store, gameId) => {
         <button onclick="window.app.submitEditGame()" style="width:100%; margin-bottom:15px;">Enregistrer</button>
         <button onclick="window.app.navigateDeleteGame('${game.id}')" style="width:100%; background-color:#ef4444; color:white;">Supprimer ce jeu</button>
     </div>
+    </div>
     <style>
         .game-icon-opt.selected { background-color: var(--primary-color) !important; color: white; }
     </style>
@@ -390,10 +404,11 @@ export const ConfirmDeleteGameView = (store, gameId) => {
     if (!game) return '<div>Jeu introuvable</div>';
 
     return `
-    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Supprimer Jeu</h1>
-    </header >
+    </header>
+    <div style="flex:1; overflow-y:auto; width:100%;">
     <div class="card" style="text-align:center; padding: 40px 20px;">
         <div style="font-size:4em; margin-bottom:10px; color:${game.color};">🎲</div>
         <h2 style="margin-bottom:10px;">Supprimer ${game.name} ?</h2>
@@ -402,19 +417,21 @@ export const ConfirmDeleteGameView = (store, gameId) => {
         <button onclick="window.app.executeDeleteGame('${gameId}')" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Supprimer définitivement</button>
         <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
     </div>
+    </div>
 `;
 };
 
 export const CreatePlayerView = () => `
-    < header style = "display:flex; align-items:center; margin-bottom: 20px;" >
+    <header style="display:flex; align-items:center; margin-bottom: 20px;">
         <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
         <h1>Nouveau Joueur</h1>
-    </header >
+    </header>
+    <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
     <div class="card">
-        <label style="display:block; margin-bottom:20px;">
-            Nom du joueur
-            <input type="text" id="new-player-name" style="width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:5px;">
-        </label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <label for="new-player-name" style="font-weight:bold; width: 50%;">Nom du joueur</label>
+            <input type="text" id="new-player-name" style="width:45%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
+        </div>
 
         <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:20px;">
             ${['👤', '🧑‍🚀', '🦸', '🦹', '🧙', '🧟', '🧛', '🧞', '🧜', '🧚'].map(emoji => `
@@ -446,6 +463,7 @@ export const CreatePlayerView = () => `
 
                     <button onclick="window.app.submitCreatePlayer()" style="width:100%">Ajouter</button>
             </div>
+            </div>
             <style>
                 .avatar-opt.selected {background - color: var(--primary-color) !important; color: white; }
             </style>
@@ -460,6 +478,7 @@ export const EditPlayerView = (store, playerId) => {
                 <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                 <h1>Modifier Joueur</h1>
             </header>
+            <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
             <div class="card">
                 <input type="hidden" id="edit-player-id" value="${player.id}">
                     <label style="display:block; margin-bottom:20px;">
@@ -498,6 +517,7 @@ export const EditPlayerView = (store, playerId) => {
 
                                 <button onclick="window.app.submitEditPlayer()" style="width:100%">Enregistrer</button>
                         </div>
+                        </div>
                         <style>
                             .avatar-opt.selected {background - color: var(--primary-color) !important; color: white; }
                         </style>
@@ -517,6 +537,7 @@ export const GameSetupView = (store, gameId) => {
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Fin de partie</h1>
                         </header>
+                        <div style="flex:1; overflow-y:auto; width:100%;">
                         <div class="card" style="margin-bottom: 80px;">
                             <p style="margin-bottom:20px;">Définissez les conditions de fin de partie.</p>
 
@@ -529,6 +550,7 @@ export const GameSetupView = (store, gameId) => {
                                 <label for="setup-round-limit" style="font-weight:bold; width: 60%;">Nombre de tours</label>
                                 <input type="number" id="setup-round-limit" value="${defaultRounds}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
                             </div>
+                        </div>
                         </div>
 
                         <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
@@ -551,6 +573,7 @@ export const UpdateLimitsView = (store) => {
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Fin de partie</h1>
                         </header>
+                        <div style="flex:1; overflow-y:auto; width:100%;">
                         <div class="card" style="margin-bottom: 80px;">
                             <p style="margin-bottom:20px; color:#666;">Pour continuer, vous pouvez augmenter ou supprimer les limites de la partie.</p>
 
@@ -563,6 +586,7 @@ export const UpdateLimitsView = (store) => {
                                 <label for="update-round-limit" style="font-weight:bold; width:60%;">Limite de tours</label>
                                 <input type="number" id="update-round-limit" value="${currentRounds}" placeholder="Illimité" style="width:30%; padding:10px; border:1px solid #ccc; border-radius:5px; text-align:right;">
                             </div>
+                        </div>
                         </div>
 
                         <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
@@ -585,6 +609,7 @@ export const AddIngamePlayerView = (store) => {
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Ajouter un joueur</h1>
                         </header>
+                        <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
                         <div class="grid">
                             <!-- Option to create new -->
                             <div class="card" onclick="window.app.router.navigate('createPlayer')" style="display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:100px; border: 2px dashed #ccc; background:transparent;">
@@ -599,6 +624,7 @@ export const AddIngamePlayerView = (store) => {
                 <h3>${p.name}</h3>
             </div>
         `).join('')}
+                        </div>
                         </div>
                         `;
 };
@@ -618,6 +644,7 @@ export const RemoveIngamePlayerView = (store) => {
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Supprimer un joueur</h1>
                         </header>
+                        <div style="flex:1; overflow-y:auto; width:100%; padding-bottom:20px;">
                         <div class="card">
                             <p style="margin-bottom:20px; color: #ef4444;">Selectionnez le joueur à supprimer.</p>
                             <div class="grid">
@@ -628,6 +655,7 @@ export const RemoveIngamePlayerView = (store) => {
                 </div>
             `).join('')}
                             </div>
+                        </div>
                         </div>
                         <style>
                             .grid {display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
@@ -662,9 +690,11 @@ export const ReorderIngamePlayersView = (store) => {
                             <button onclick="window.app.cancelReorderIngame()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Ordre des joueurs</h1>
                         </header>
+                        <div style="flex:1; overflow-y:auto; width:100%;">
                         <div class="card" style="margin-bottom:80px;"> <!-- Margin bottom for fixed footer button space -->
                             <p style="margin-bottom:10px; color:#666; font-size:0.9em;">Glissez pour réorganiser.</p>
                             <div id="reorder-ingame-list"></div>
+                        </div>
                         </div>
 
                         <div style="position:fixed; bottom:20px; left:20px; right:20px; z-index:100;">
@@ -690,6 +720,7 @@ export const ConfirmRemoveIngamePlayerView = (store, playerId) => {
                             <button onclick="window.app.router.back()" style="padding: 8px 12px; margin-right: 10px; display:flex; align-items:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
                             <h1>Confirmation</h1>
                         </header>
+                        <div style="flex:1; overflow-y:auto; width:100%;">
                         <div class="card" style="text-align:center; padding: 40px 20px;">
                             <div style="font-size:4em; margin-bottom:10px;">${player.avatar}</div>
                             <h2 style="margin-bottom:10px;">${player.name}</h2>
@@ -697,6 +728,7 @@ export const ConfirmRemoveIngamePlayerView = (store, playerId) => {
 
                             <button onclick="window.app.executeRemovePlayer('${playerId}')" style="width:100%; background-color:#ef4444; margin-bottom:15px; padding:15px;">Supprimer définitivement</button>
                             <button onclick="window.app.router.back()" style="width:100%; background-color:#ddd; color:#333; padding:15px;">Annuler</button>
+                        </div>
                         </div>
                         `;
 };
@@ -752,6 +784,7 @@ export const GameOverView = (store) => {
     const winner = players[0];
 
     return `
+                    <div style="flex:1; overflow-y:auto; width:100%;">
                     <div class="gameover-container">
                         <div class="gameover-icon">🏆</div>
                         <h1 class="gameover-title">${winner.name} a gagné !</h1>
@@ -791,6 +824,7 @@ export const GameOverView = (store) => {
                         </div>
 
                         <button onclick="window.app.executeEndGame()" style="width:100%; margin-top:20px; padding:15px; font-size:1.1rem;">Retour à l'accueil</button>
+                    </div>
                     </div>
                     `;
 };
