@@ -1,3 +1,5 @@
+export const APP_VERSION = '1.0.4';
+
 export const HomeView = (store) => {
     const games = store.getGames();
     return `
@@ -836,7 +838,7 @@ export const AboutView = () => `
                     </header>
                     <div class="card">
                         <h3>Compteur de Points</h3>
-                        <p>Version 1.0</p>
+                        <p>Version ${APP_VERSION}</p>
                         <p style="margin-top:20px;">Une application simple et efficace pour compter les points de vos jeux de société favoris (Tarot, Belote, UNO, et bien d'autres).</p>
                         <p style="margin-top:20px;">Développé avec passion.</p>
                     </div>
