@@ -1097,6 +1097,13 @@ class App {
         if (app) app.innerHTML = html;
     }
 
+    toggleHistoryDetails(sessionId) {
+        const el = document.getElementById(`history-details-${sessionId}`);
+        if (el) {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
     // Navigate to confirmation page
     navigateEndGame() {
         this.router.navigate('confirmEndGame');
